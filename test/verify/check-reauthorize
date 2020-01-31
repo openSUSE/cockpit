@@ -53,8 +53,12 @@ class TestReauthorize(MachineCase):
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
         b.click("button.credential-clear")
-        b.expect_load()
-        m.execute("flock -n /tmp/playground-test-lock true")
+        if m.image in [ "rhel-8-2-distropkg" ]:
+            b.wait_not_visible("button.credential-clear")
+            b.click("#credentials-dialog [data-dismiss]")
+        else:
+            b.expect_load()
+            m.execute("flock -n /tmp/playground-test-lock true")
 
         b.enter_page("/playground/test")
 
@@ -80,7 +84,11 @@ class TestReauthorize(MachineCase):
         b.click("#navbar-dropdown")
         b.click("#credentials-item")
         b.click("button.credential-clear")
-        b.expect_load()
+        if self.machine.image in [ "rhel-8-2-distropkg" ]:
+            b.wait_not_visible("button.credential-clear")
+            b.click("#credentials-dialog [data-dismiss]")
+        else:
+            b.expect_load()
 
         b.enter_page("/playground/test")
 

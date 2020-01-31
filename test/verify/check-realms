@@ -91,7 +91,11 @@ class TestRealms(MachineCase):
         self.machines["services"].execute("sed -i '/^nsslapd-tmpdir:/ a nsslapd-verify-filter-schema: off' /var/lib/ipa-data/etc/dirsrv/slapd-COCKPIT-LAN/dse.ldif")
 
         self.machines['services'].execute("/run-freeipa")
-        self.domain_sel = "#system_information_domain_button"
+
+        if self.machine.image in ["rhel-8-2-distropkg"]:
+            self.domain_sel = "#system-info-domain button"
+        else:
+            self.domain_sel = "#system_information_domain_button"
 
     def testIpa(self):
         m = self.machine
@@ -762,7 +766,10 @@ class TestPackageInstall(packagelib.PackageCase):
 
     def setUp(self):
         super().setUp()
-        self.domain_sel = "#system_information_domain_button"
+        if self.machine.image in ["rhel-8-2-distropkg"]:
+            self.domain_sel = "#system-info-domain button"
+        else:
+            self.domain_sel = "#system_information_domain_button"
 
         self.machine.execute("systemctl stop realmd")
 
@@ -770,10 +777,16 @@ class TestPackageInstall(packagelib.PackageCase):
         b = self.browser
         def check():
             try:
-                b.wait_present("#system_information_domain_tooltip")
-                b.mouse("#system_information_domain_tooltip", "mouseover")
-                b.wait_in_text(".tooltip-inner", text)
-                b.mouse("#system_information_domain_tooltip", "mouseout")
+                if self.machine.image in ["rhel-8-2-distropkg"]:
+                    b.wait_present("#system-info-domain [data-original-title]")
+                    b.mouse("#system-info-domain span", "mouseover")
+                    b.wait_in_text(".tooltip-inner", text)
+                    b.mouse("#system-info-domain span", "mouseout")
+                else:
+                    b.wait_present("#system_information_domain_tooltip")
+                    b.mouse("#system_information_domain_tooltip", "mouseover")
+                    b.wait_in_text(".tooltip-inner", text)
+                    b.mouse("#system_information_domain_tooltip", "mouseout")
                 return True
             except:
                 return False
