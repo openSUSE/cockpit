@@ -434,10 +434,10 @@ Obsoletes: cockpit-dashboard
 Recommends: (reportd >= 0.7.1 if abrt)
 %endif
 # NPM modules which are also available as packages
-Provides: bundled(js-jquery) = %{npm-version:jquery}
-Provides: bundled(js-moment) = %{npm-version:moment}
-Provides: bundled(xstatic-bootstrap-datepicker-common) = %{npm-version:bootstrap-datepicker}
-Provides: bundled(xstatic-patternfly-common) = %{npm-version:patternfly}
+Provides: bundled(js-jquery) = 3.5.1
+Provides: bundled(js-moment) = 2.29.1
+Provides: bundled(xstatic-bootstrap-datepicker-common) = 1.9.0
+Provides: bundled(xstatic-patternfly-common) = 3.59.5
 
 %description system
 This package contains the Cockpit shell and system configuration interfaces.
@@ -528,8 +528,8 @@ test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 %package kdump
 Summary: Cockpit user interface for kernel crash dumping
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
+Requires: cockpit-bridge >= 122
+Requires: cockpit-shell >= 122
 Requires: kexec-tools
 BuildArch: noarch
 
@@ -541,8 +541,8 @@ The Cockpit component for configuring kernel crash dumping.
 
 %package sosreport
 Summary: Cockpit user interface for diagnostic reports
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
+Requires: cockpit-bridge >= 122
+Requires: cockpit-shell >= 122
 Requires: sos
 BuildArch: noarch
 
@@ -556,8 +556,8 @@ sosreport tool.
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
+Requires: cockpit-bridge >= 186
+Requires: cockpit-shell >= 186
 Requires: NetworkManager >= 1.6
 # Optional components
 Recommends: NetworkManager-team
@@ -574,8 +574,8 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %package selinux
 Summary: Cockpit SELinux package
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
+Requires: cockpit-bridge >= 122
+Requires: cockpit-shell >= 122
 Requires: setroubleshoot-server >= 3.3.3
 BuildArch: noarch
 
@@ -605,7 +605,7 @@ Dummy package from building optional packages only; never install or publish me.
 
 %package -n cockpit-storaged
 Summary: Cockpit user interface for storage, using udisks
-Requires: cockpit-shell >= %{required_base}
+Requires: cockpit-shell >= 186
 Requires: udisks2 >= 2.6
 Recommends: udisks2-lvm2 >= 2.6
 Recommends: udisks2-iscsi >= 2.6
@@ -643,8 +643,8 @@ These files are not required for running Cockpit.
 %package -n cockpit-machines
 BuildArch: noarch
 Summary: Cockpit user interface for virtual machines
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-system >= %{required_base}
+Requires: cockpit-bridge >= 186
+Requires: cockpit-system >= 186
 %if 0%{?suse_version}
 Requires: libvirt-daemon-qemu
 %else
@@ -667,7 +667,7 @@ If "virt-install" is installed, you can also create new virtual machines.
 
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration
-Requires: cockpit-bridge >= %{required_base}
+Requires: cockpit-bridge >= 134.x
 Requires(post): pcp
 
 %description -n cockpit-pcp
@@ -683,7 +683,7 @@ systemctl reload-or-try-restart pmlogger
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages
 BuildArch: noarch
-Requires: cockpit-bridge >= %{required_base}
+Requires: cockpit-bridge >= 186
 Requires: PackageKit
 
 %description -n cockpit-packagekit
