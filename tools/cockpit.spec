@@ -15,6 +15,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 #
 
+#
 # This file is maintained at the following location:
 # https://github.com/cockpit-project/cockpit/blob/main/tools/cockpit.spec
 #
@@ -52,6 +53,8 @@ URL:            https://cockpit-project.org/
 Version:        292
 Release:        0
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
+Source1:        cockpit.pam
+Source2:        cockpit-rpmlintrc
 
 # Experimental Python support
 %if !%{defined cockpit_enable_python}
@@ -186,6 +189,8 @@ BuildRequires:  python3-tox-current-env
 
 %prep
 %setup -q -n cockpit-%{version}
+%autopatch -p1
+cp %SOURCE1 tools/cockpit.pam
 
 %build
 %configure \
@@ -323,6 +328,8 @@ rm %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-selinux.me
 pushd %{buildroot}/%{_datadir}/cockpit/branding
 find -L * -type l -printf "%H\n" | sort -u | xargs rm -rv
 popd
+# need this in SUSE as post build checks dislike stale symlinks
+install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
 # remove files of not installable packages
 rm -r %{buildroot}%{_datadir}/cockpit/sosreport
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
@@ -480,10 +487,14 @@ authentication via sssd/FreeIPA.
 %dir %{_sysconfdir}/cockpit
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
+# dir is not owned by pam in openSUSE
+%dir %{_sysconfdir}/motd.d
 # created in %post, so that users can rm the files
 %ghost %{_sysconfdir}/issue.d/cockpit.issue
 %ghost %{_sysconfdir}/motd.d/cockpit
 %ghost %attr(0644, root, root) %{_sysconfdir}/cockpit/disallowed-users
+%ghost %dir /run/cockpit
+%ghost /run/cockpit/motd
 %dir %{_datadir}/cockpit/motd
 %{_datadir}/cockpit/motd/update-motd
 %{_datadir}/cockpit/motd/inactive.motd
