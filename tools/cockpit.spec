@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
 
+#
 # This file is maintained at the following location:
 # https://github.com/cockpit-project/cockpit/blob/main/tools/cockpit.spec
 #
@@ -59,6 +60,7 @@ Version:        358
 Release:        0
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 Source1:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-node-%{version}.tar.xz
+Source2:        cockpit-rpmlintrc
 
 %if 0%{?fedora} >= 41 || 0%{?rhel}
 ExcludeArch: %{ix86}
@@ -161,6 +163,7 @@ BuildRequires:  python3-pytest-timeout
 %if 0%{?rebuild_bundle}
 %setup -q -D -T -a 1 -n cockpit-%{version}
 %endif
+%autopatch -p1
 
 %build
 %if 0%{?rebuild_bundle}
@@ -286,11 +289,11 @@ rm -rf %{buildroot}/usr/src/debug
 # On RHEL kdump, networkmanager, selinux, and sosreport are part of the system package
 %if 0%{?rhel}
 cat kdump.list sosreport.list networkmanager.list selinux.list >> system.list
-rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit_project.cockpit_sosreport.metainfo.xml
-rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit_project.cockpit_kdump.metainfo.xml
-rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit_project.cockpit_selinux.metainfo.xml
-rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit_project.cockpit_networkmanager.metainfo.xml
-rm -f %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/cockpit-sosreport.png
+rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
+rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
+rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
+rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-networkmanager.metainfo.xml
+rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %endif
 
 # -------------------------------------------------------------------------------
@@ -409,12 +412,17 @@ authentication via sssd/FreeIPA.
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
 %dir %{_sysconfdir}/cockpit
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
+# dir is not owned by pam in openSUSE needed for Leap15.6
+%dir %{pamconfdir}
+%dir %{_sysconfdir}/motd.d
 %config(noreplace) %{pamconfdir}/cockpit
 
 # created in %post, so that users can rm the files
 %ghost %{_sysconfdir}/issue.d/cockpit.issue
 %ghost %{_sysconfdir}/motd.d/cockpit
 %ghost %attr(0644, root, root) %{_sysconfdir}/cockpit/disallowed-users
+%ghost %dir /run/cockpit
+%ghost /run/cockpit/issue
 %dir %{_datadir}/cockpit/issue
 %{_datadir}/cockpit/issue/update-issue
 %{_datadir}/cockpit/issue/inactive.issue
