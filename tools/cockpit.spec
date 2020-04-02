@@ -67,6 +67,10 @@ Source0:        cockpit-%{version}.tar.gz
 Release:        1%{?dist}
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 %endif
+Source1:       cockpit.pam
+# merged upstream after 215
+Patch:         0001-test-handle-XDG_CONFIG_DIRS.patch
+Patch1:        0001-openSUSE-Tumbleweed-branding.patch
 
 BuildRequires: gcc
 BuildRequires: pkgconfig(gio-unix-2.0)
@@ -141,6 +145,8 @@ Recommends: subscription-manager-cockpit
 
 %prep
 %setup -q -n cockpit-%{version}
+%autopatch -p1
+cp %SOURCE1 tools/cockpit.pam
 
 %build
 exec 2>&1
@@ -456,6 +462,8 @@ authentication via sssd/FreeIPA.
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
 %config %{_sysconfdir}/issue.d/cockpit.issue
+# dir is not owned by pam in openSUSE
+%dir %{_sysconfdir}/motd.d
 %config %{_sysconfdir}/motd.d/cockpit
 %ghost /run/cockpit/motd
 %ghost %dir /run/cockpit
