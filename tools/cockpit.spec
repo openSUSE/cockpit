@@ -15,6 +15,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 #
 
+#
 # This file is maintained at the following location:
 # https://github.com/cockpit-project/cockpit/blob/master/tools/cockpit.spec
 #
@@ -78,11 +79,13 @@ URL:            https://cockpit-project.org/
 Version:        222
 %if %{defined wip}
 Release:        1.%{wip}%{?dist}
-Source0:        cockpit-%{version}.tar.gz
+Source0:        cockpit-%{version}.tar.xz
 %else
 Release:        0
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 %endif
+Source1:       cockpit.pam
+Source2:       cockpit-rpmlintrc
 
 BuildRequires: gcc
 BuildRequires: pkgconfig(gio-unix-2.0)
@@ -156,6 +159,8 @@ Recommends: subscription-manager-cockpit
 
 %prep
 %setup -q -n cockpit-%{version}
+%autopatch -p1
+cp %SOURCE1 tools/cockpit.pam
 
 %build
 exec 2>&1
@@ -488,6 +493,8 @@ authentication via sssd/FreeIPA.
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
 %config %{_sysconfdir}/issue.d/cockpit.issue
+# dir is not owned by pam in openSUSE
+%dir %{_sysconfdir}/motd.d
 %config %{_sysconfdir}/motd.d/cockpit
 %ghost /run/cockpit/motd
 %ghost %dir /run/cockpit
