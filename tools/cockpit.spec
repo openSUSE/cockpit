@@ -15,6 +15,7 @@
 # along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
 #
 
+#
 # This file is maintained at the following location:
 # https://github.com/cockpit-project/cockpit/blob/main/tools/cockpit.spec
 #
@@ -52,6 +53,8 @@ URL:            https://cockpit-project.org/
 Version:        276
 Release:        0
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
+Source1:        cockpit.pam
+Source2:        cockpit-rpmlintrc
 
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{pcp})
@@ -158,6 +161,8 @@ Requires: subscription-manager-cockpit
 
 %prep
 %setup -q -n cockpit-%{version}
+%autopatch -p1
+cp %SOURCE1 tools/cockpit.pam
 
 %build
 %configure \
@@ -287,6 +292,8 @@ rm %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-selinux.me
 pushd %{buildroot}/%{_datadir}/cockpit/branding
 find -L * -type l -printf "%H\n" | sort -u | xargs rm -rv
 popd
+# need this in SUSE as post build checks dislike stale symlinks
+install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
 # remove files of not installable packages
 rm -r %{buildroot}%{_datadir}/cockpit/sosreport
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
@@ -439,9 +446,13 @@ authentication via sssd/FreeIPA.
 %dir %{_sysconfdir}/cockpit
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
+# dir is not owned by pam in openSUSE
+%dir %{_sysconfdir}/motd.d
 # created in %post, so that users can rm the files
 %ghost %{_sysconfdir}/issue.d/cockpit.issue
 %ghost %{_sysconfdir}/motd.d/cockpit
+%ghost %dir /run/cockpit
+%ghost /run/cockpit/motd
 %dir %{_datadir}/cockpit/motd
 %{_datadir}/cockpit/motd/update-motd
 %{_datadir}/cockpit/motd/inactive.motd
