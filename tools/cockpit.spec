@@ -92,14 +92,14 @@ BuildRequires: libssh-devel >= 0.8.5
 BuildRequires: openssl-devel
 BuildRequires: gnutls-devel >= 3.4.3
 BuildRequires: zlib-devel
-BuildRequires: krb5-devel >= 1.11
+BuildRequires: pkgconfig(krb5) >= 1.11
 BuildRequires: libxslt-devel
 BuildRequires: glib-networking
 BuildRequires: sed
 
 BuildRequires: glib2-devel >= 2.50.0
 # this is for runtimedir in the tls proxy ace21c8879
-BuildRequires: systemd-devel >= 235
+BuildRequires: pkgconfig(libsystemd) >= 235
 %if 0%{?suse_version}
 BuildRequires: distribution-release
 BuildRequires: libpcp-devel
