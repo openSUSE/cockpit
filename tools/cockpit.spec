@@ -228,6 +228,10 @@ rm %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-selinux.me
 pushd %{buildroot}/%{_datadir}/cockpit/branding
 find -L * -type l -printf "%H\n" | sort -u | xargs rm -rv
 popd
+# remove files of not installable packages
+rm -r %{buildroot}%{_datadir}/cockpit/sosreport
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
+rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %else
 %global _debugsource_packages 1
 %global _debuginfo_subpackages 0
@@ -482,6 +486,7 @@ The Cockpit component for configuring kernel crash dumping.
 %files kdump -f kdump.list
 %{_datadir}/metainfo/org.cockpit_project.cockpit_kdump.metainfo.xml
 
+%if !0%{?suse_version}
 %package sosreport
 Summary: Cockpit user interface for diagnostic reports
 Requires: cockpit-bridge >= %{required_base}
@@ -494,8 +499,9 @@ The Cockpit component for creating diagnostic reports with the
 sosreport tool.
 
 %files sosreport -f sosreport.list
-%{_datadir}/metainfo/org.cockpit_project.cockpit_sosreport.metainfo.xml
-%{_datadir}/icons/hicolor/64x64/apps/cockpit-sosreport.png
+%{_datadir}/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
+%{_datadir}/pixmaps/cockpit-sosreport.png
+%endif
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager
