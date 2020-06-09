@@ -288,6 +288,10 @@ find -L * -type l -printf "%H\n" | sort -u | xargs rm -rv
 popd
 # need this in SUSE as post build checks dislike stale symlinks
 install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
+# remove files of not installable packages
+rm -r %{buildroot}%{_datadir}/cockpit/{sosreport,selinux}
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-{selinux,sosreport}.metainfo.xml
+rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %else
 %global _debugsource_packages 1
 %global _debuginfo_subpackages 0
@@ -512,6 +516,7 @@ The Cockpit component for configuring kernel crash dumping.
 %files kdump -f kdump.list
 %{_datadir}/metainfo/org.cockpit-project.cockpit-kdump.metainfo.xml
 
+%if !0%{?suse_version}
 %package sosreport
 Summary: Cockpit user interface for diagnostic reports
 Requires: cockpit-bridge >= 122
@@ -526,6 +531,7 @@ sosreport tool.
 %files sosreport -f sosreport.list
 %{_datadir}/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
 %{_datadir}/pixmaps/cockpit-sosreport.png
+%endif
 
 %package networkmanager
 Summary: Cockpit user interface for networking, using NetworkManager
@@ -543,7 +549,7 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %endif
 
-%if 0%{?rhel} == 0
+%if 0%{?rhel} == 0 && !0%{?suse_version}
 
 %package selinux
 Summary: Cockpit SELinux package
