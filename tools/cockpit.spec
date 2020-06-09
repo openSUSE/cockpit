@@ -649,7 +649,7 @@ The Cockpit component for managing storage.  This package uses udisks.
 Summary: Tests for Cockpit
 Requires: cockpit-bridge >= 138
 Requires: cockpit-system >= 138
-Requires: openssh-clients
+Requires: /usr/bin/ssh-agent /usr/bin/ssh-add
 Provides: cockpit-test-assets = %{version}-%{release}
 
 %description -n cockpit-tests
