@@ -50,8 +50,8 @@ License:        LGPLv2+
 URL:            https://cockpit-project.org/
 
 Version:        271
-Release:        1%{?dist}
-Source0:        https://github.com/cockpit-project/cockpit/releases/download/271/cockpit-271.tar.xz
+Release:        0
+Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{pcp})
