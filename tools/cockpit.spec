@@ -75,12 +75,12 @@ Summary:        Web Console for Linux servers
 License:        LGPLv2+
 URL:            https://cockpit-project.org/
 
-Version:        0
+Version:        225
 %if %{defined wip}
 Release:        1.%{wip}%{?dist}
 Source0:        cockpit-%{version}.tar.gz
 %else
-Release:        1%{?dist}
+Release:        0
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 %endif
 
