@@ -49,8 +49,8 @@ Summary:        Web Console for Linux servers
 License:        LGPLv2+
 URL:            https://cockpit-project.org/
 
-Version:        0
-Release:        1%{?dist}
+Version:        276.1
+Release:        0
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
