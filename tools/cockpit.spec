@@ -73,6 +73,7 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 %endif
 Source1:       cockpit.pam
 Source2:       cockpit-rpmlintrc
+Source99:      README.packaging
 
 BuildRequires: gcc
 BuildRequires: pkgconfig(gio-unix-2.0)
