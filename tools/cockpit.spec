@@ -62,6 +62,7 @@ Version:        351
 Release:        0
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 Source2:        cockpit-rpmlintrc
+Source99:       README.packaging
 
 %if 0%{?fedora} >= 41 || 0%{?rhel}
 ExcludeArch: %{ix86}
