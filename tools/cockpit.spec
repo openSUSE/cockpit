@@ -63,6 +63,7 @@ Release:        0
 Source0:        cockpit-%{version}.tar.xz
 Source1:        cockpit.pam
 Source2:        cockpit-rpmlintrc
+Source99:       README.packaging
 
 # in RHEL the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{machines,pcp})
