@@ -473,12 +473,16 @@ Requires: group(wheel)
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
+%if !0%{?suse_version}
 Requires: systemd >= 235
+%endif
 Suggests: sssd-dbus
 Requires(pre): permissions
+%if !0%{?suse_version}
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
+%endif
 
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.
