@@ -55,6 +55,7 @@ Release:        0
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 Source1:        cockpit.pam
 Source2:        cockpit-rpmlintrc
+Source99:       README.packaging
 
 # Use Python bridge on non-stable versions
 %if 0%{?fedora} >= 39
