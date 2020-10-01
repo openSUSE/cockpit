@@ -461,6 +461,9 @@ Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
 Suggests: sssd-dbus
+%if 0%{?suse_version}
+Requires(pre): permissions
+%endif
 
 %description ws
 The Cockpit Web Service listens on the network, and authenticates users.
@@ -510,7 +513,7 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-desktop
 %{_libexecdir}/cockpit-certificate-ensure
 %{_libexecdir}/cockpit-certificate-helper
-%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
+%{?suse_version:%verify(not mode) }%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
 
 %if 0%{?with_selinux}
@@ -539,7 +542,9 @@ if %{_sbindir}/selinuxenabled 2>/dev/null; then
     %selinux_relabel_post -s %{selinuxtype}
 fi
 %endif
-
+%if 0%{?suse_version}
+%set_permissions %{_libexecdir}/cockpit-session
+%endif
 %tmpfiles_create cockpit-tempfiles.conf
 %systemd_post cockpit.socket cockpit.service
 # firewalld only partially picks up changes to its services files without this
@@ -556,6 +561,11 @@ if %{_sbindir}/selinuxenabled 2>/dev/null; then
 fi
 %endif
 %systemd_postun_with_restart cockpit.socket cockpit.service
+
+%if 0%{?suse_version}
+%verifyscript ws
+%verify_permissions -e %{_libexecdir}/cockpit-session
+%endif
 
 # -------------------------------------------------------------------------------
 # Sub-packages that are part of cockpit-system in RHEL/CentOS, but separate in Fedora
