@@ -356,7 +356,10 @@ Requires: (selinux-policy >= %{_selinux_policy_version} if selinux-policy-%{seli
 Requires(post): (policycoreutils if selinux-policy-%{selinuxtype})
 Recommends: sscg >= 2.3
 Recommends: system-logos
-Suggests: sssd-dbus >= 2.6.2
+Suggests: sssd-dbus
+%if 0%{?suse_version}
+Requires(pre): permissions
+%endif
 # for cockpit-desktop
 Suggests: python3
 Obsoletes: cockpit-tests < 331
@@ -415,7 +418,7 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-desktop
 %{_libexecdir}/cockpit-certificate-ensure
 %{_libexecdir}/cockpit-certificate-helper
-%{_libexecdir}/cockpit-session
+%{?suse_version:%verify(not mode) }%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
 %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
 %{_mandir}/man8/%{name}_session_selinux.8cockpit.*
@@ -454,6 +457,9 @@ if [ "$1" = 2 ]; then
     fi
 fi
 
+%if 0%{?suse_version}
+%set_permissions %{_libexecdir}/cockpit-session
+%endif
 %tmpfiles_create cockpit-ws.conf
 %systemd_post cockpit.socket cockpit.service
 # firewalld only partially picks up changes to its services files without this
@@ -481,6 +487,11 @@ if [ -x %{_sbindir}/selinuxenabled ]; then
     %selinux_relabel_post -s %{selinuxtype}
 fi
 %systemd_postun_with_restart cockpit.socket cockpit.service
+
+%if 0%{?suse_version}
+%verifyscript ws
+%verify_permissions -e %{_libexecdir}/cockpit-session
+%endif
 
 # -------------------------------------------------------------------------------
 # Sub-packages that are part of cockpit-system in RHEL/CentOS, but separate in Fedora
