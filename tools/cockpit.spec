@@ -58,7 +58,7 @@ Summary:        Web Console for Linux servers
 License:        LGPL-2.1-or-later
 URL:            https://cockpit-project.org/
 
-Version:        232
+Version:        232+git20200911.046b3d4b3
 %if %{defined wip}
 Release:        1.%{wip}%{?dist}
 Source0:        cockpit-%{version}.tar.xz
@@ -69,6 +69,12 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 Source1:       cockpit.pam
 Source2:       cockpit-rpmlintrc
 Source99:      README.packaging
+Source1000:    node_modules.loc
+Source1001:    package-lock.json
+# NODE_MODULES BEGIN
+# NODE_MODULES END
+Patch0:        gyp.diff
+Patch1:        sass.diff
 
 # in RHEL the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{machines,pcp})
@@ -87,6 +93,12 @@ Source99:      README.packaging
 %define build_optional 1
 %endif
 
+BuildRequires: gcc-c++
+BuildRequires: nodejs-devel-default
+BuildRequires: nodejs-rpm-macros
+BuildRequires: npm
+BuildRequires: pkgconfig(libsass)
+#
 BuildRequires: gcc
 BuildRequires: pkgconfig(gio-unix-2.0)
 BuildRequires: pkgconfig(json-glib-1.0)
@@ -131,6 +143,8 @@ BuildRequires: gdb
 # For documentation
 BuildRequires: xmlto
 
+BuildRequires:  nodejs-devel-default
+
 # This is the "cockpit" metapackage. It should only
 # Require, Suggest or Recommend other cockpit-xxx subpackages
 
@@ -153,11 +167,24 @@ Recommends: subscription-manager-cockpit
 
 %prep
 %setup -q -n cockpit-%{version}
+cp %{_sourcedir}/package-lock.json .
+set +x
+%prepare_node_modules %{_sourcedir}/node_modules.loc
+set -x
+cp -a eslint-plugin-cockpit node_modules
+#
 %autopatch -p1
 cp %SOURCE1 tools/cockpit.pam
 
 %build
-exec 2>&1
+echo %version > .tarball
+### npm
+LIBSASS_EXT=auto \
+SASS_FORCE_BUILD=1 \
+SKIP_SASS_BINARY_DOWNLOAD_FOR_CI=1 \
+npm rebuild
+###
+autoreconf -fi
 %configure \
     --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \
@@ -176,7 +203,6 @@ exec 2>&1
 make -j4 %{?extra_flags} all
 
 %check
-exec 2>&1
 # HACK: Fedora koji builders are very slow, unreliable, and inaccessible for debugging; https://github.com/cockpit-project/cockpit/issues/13909
 %if 0%{?fedora} >= 0
 %ifarch s390x
@@ -189,10 +215,11 @@ exec 2>&1
 %define testsuite_skip #
 %endif
 %endif
-%{?testsuite_skip} make -j4 check %{?testsuite_fail}
+%{?testsuite_skip} make -j4 check || { ls -l /dev/std* ; [ -e ./test-suite.log ] && cat ./test-suite.log ; false; } %{?testsuite_fail}
 
 %install
-%make_install
+# In obs we get  write error: stdout
+%make_install | tee make_install.log
 make install-tests DESTDIR=%{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
@@ -344,6 +371,9 @@ rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metai
 rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %endif
 
+mkdir -p %{buildroot}%{_datadir}/cockpit/devel/lib
+cp -a pkg/lib/patternfly %{buildroot}%{_datadir}/cockpit/devel/lib
+
 %if 0%{?build_basic}
 %find_lang cockpit
 %endif
@@ -407,9 +437,7 @@ embed or extend Cockpit.
 Summary: Cockpit admin interface package for configuring and troubleshooting a system
 BuildArch: noarch
 Requires: cockpit-bridge >= %{version}-%{release}
-%if !0%{?suse_version}
 Requires: shadow-utils
-%endif
 Requires: grep
 Requires: /usr/bin/pwscore
 Requires: /usr/bin/date
@@ -659,6 +687,15 @@ These files are not required for running Cockpit.
 
 %files -n cockpit-tests -f tests.list
 %{_prefix}/%{__lib}/cockpit-test-assets
+
+%package devel
+Summary: Development files for for Cockpit
+
+%description devel
+This package contains files used to develop cockpit modules
+
+%files devel
+%{_datadir}/cockpit/devel
 
 %package -n cockpit-machines
 BuildArch: noarch
