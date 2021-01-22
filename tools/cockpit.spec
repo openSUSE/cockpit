@@ -64,6 +64,10 @@ Source0:        cockpit-%{version}.tar
 Source1:        cockpit.pam
 Source2:        cockpit-rpmlintrc
 Source99:       README.packaging
+Source98:       package-lock.json
+Source97:       node_modules.spec.inc
+%include        %{_sourcedir}/node_modules.spec.inc
+Patch0:         cockpit-redhatfont.diff
 
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{machines,pcp})
@@ -128,6 +132,11 @@ BuildRequires: gdb
 # For documentation
 BuildRequires: xmlto
 
+# for rebuilding nodejs bits
+BuildRequires: npm
+BuildRequires: sassc
+BuildRequires: local-npm-registry
+
 # This is the "cockpit" metapackage. It should only
 # Require, Suggest or Recommend other cockpit-xxx subpackages
 
@@ -152,9 +161,18 @@ Recommends: subscription-manager-cockpit
 %setup -q -n cockpit-%{version}
 %autopatch -p1
 cp %SOURCE1 tools/cockpit.pam
+#
+local-npm-registry %{_sourcedir} install --also=dev
 
 %build
+find node_modules -name \*.node -print -delete
+touch node_modules/.stamp
+
 exec 2>&1
+PKG_NAME="Cockpit"
+echo %version > .tarball
+autoreconf -fvi -I tools
+#
 %configure \
     --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \
@@ -173,7 +191,6 @@ exec 2>&1
 make -j4 %{?extra_flags} all
 
 %check
-exec 2>&1
 # HACK: Fedora koji builders are very slow, unreliable, and inaccessible for debugging; https://github.com/cockpit-project/cockpit/issues/13909
 %if 0%{?fedora} >= 0
 %ifarch s390x
@@ -186,10 +203,11 @@ exec 2>&1
 %define testsuite_skip #
 %endif
 %endif
-%{?testsuite_skip} make -j4 check %{?testsuite_fail}
+%{?testsuite_skip} make -j4 check || { ls -l /dev/std* ; [ -e ./test-suite.log ] && cat ./test-suite.log ; false; } %{?testsuite_fail}
 
 %install
-%make_install
+# In obs we get  write error: stdout
+%make_install | tee make_install.log
 make install-tests DESTDIR=%{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
@@ -327,6 +345,9 @@ rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-kdump.metainf
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %endif
+
+mkdir -p %{buildroot}%{_datadir}/cockpit/devel/lib
+cp -a pkg/lib/* %{buildroot}%{_datadir}/cockpit/devel/lib
 
 %if 0%{?build_basic}
 %find_lang cockpit
@@ -648,6 +669,15 @@ These files are not required for running Cockpit.
 
 %files -n cockpit-tests -f tests.list
 %{_prefix}/%{__lib}/cockpit-test-assets
+
+%package devel
+Summary: Development files for for Cockpit
+
+%description devel
+This package contains files used to develop cockpit modules
+
+%files devel
+%{_datadir}/cockpit/devel
 
 %package -n cockpit-machines
 BuildArch: noarch
