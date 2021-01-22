@@ -58,10 +58,12 @@ URL:            https://cockpit-project.org/
 
 Version:        357
 Release:        0
-Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
-Source1:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-node-%{version}.tar.xz
+Source0:        cockpit-%{version}.tar.gz
 Source2:        cockpit-rpmlintrc
 Source99:       README.packaging
+Source98:       package-lock.json
+Source97:       node_modules.spec.inc
+%include        %{_sourcedir}/node_modules.spec.inc
 
 %if 0%{?fedora} >= 41 || 0%{?rhel}
 ExcludeArch: %{ix86}
@@ -125,6 +127,11 @@ BuildRequires: asciidoctor
 BuildRequires:  selinux-policy
 BuildRequires:  selinux-policy-devel
 
+# for rebuilding nodejs bits
+BuildRequires: npm
+BuildRequires: sassc
+BuildRequires: local-npm-registry
+
 # This is the "cockpit" metapackage. It should only
 # Require, Suggest or Recommend other cockpit-xxx subpackages
 
@@ -164,7 +171,9 @@ BuildRequires:  python3-pytest-timeout
 %if 0%{?rebuild_bundle}
 %setup -q -D -T -a 1 -n cockpit-%{version}
 %endif
-%autopatch -p1
+
+#
+local-npm-registry %{_sourcedir} install --include=dev --ignore-scripts
 
 %build
 %if 0%{?rebuild_bundle}
@@ -176,6 +185,14 @@ NODE_ENV=production NODE_PATH=/usr/lib/node_modules:$(echo /usr/lib/node_modules
 # Use pre-built bundle on distributions without nodejs-esbuild
 %endif
 
+find node_modules -name \*.node -print -delete
+touch node_modules/.stamp
+
+exec 2>&1
+PKG_NAME="Cockpit"
+echo %version > .tarball
+autoreconf -fvi -I tools
+#
 %configure \
     %{?selinux_configure_arg} \
 %if 0%{?suse_version}
@@ -203,7 +220,9 @@ export NO_QUNIT=1
 %if 0%{?suse_version}
 export NO_BRP_STALE_LINK_ERROR="yes"
 %endif
-%make_install
+# In obs we get  write error: stdout
+%make_install | tee make_install.log
+make install-tests DESTDIR=%{buildroot}
 
 mkdir -p $RPM_BUILD_ROOT%{pamconfdir}
 install -p -m 644 %{pamconfig} $RPM_BUILD_ROOT%{pamconfdir}/cockpit
@@ -296,6 +315,9 @@ rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metai
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-networkmanager.metainfo.xml
 rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %endif
+
+mkdir -p %{buildroot}%{_datadir}/cockpit/devel
+cp -a pkg/lib %{buildroot}%{_datadir}/cockpit/devel
 
 # -------------------------------------------------------------------------------
 # Sub-packages
@@ -646,6 +668,15 @@ The Cockpit component for managing storage.  This package uses udisks.
 if [ "$1" = 2 ] && [ -d /var/lib/cockpit/btrfs ]; then
     rm -rf --one-file-system  /var/lib/cockpit/btrfs || true
 fi
+
+%package devel
+Summary: Development files for for Cockpit
+
+%description devel
+This package contains files used to develop cockpit modules
+
+%files devel
+%{_datadir}/cockpit/devel
 
 %package -n cockpit-packagekit
 Summary: Cockpit user interface for packages
