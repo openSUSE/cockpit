@@ -52,10 +52,13 @@ URL:            https://cockpit-project.org/
 
 Version:        296
 Release:        0
-Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
+Source0:        cockpit-%{version}.tar
 Source1:        cockpit.pam
 Source2:        cockpit-rpmlintrc
 Source99:       README.packaging
+Source98:       package-lock.json
+Source97:       node_modules.spec.inc
+%include        %{_sourcedir}/node_modules.spec.inc
 
 # Use Python bridge on non-stable versions
 %if 0%{?fedora} >= 39
@@ -156,6 +159,11 @@ BuildRequires:  selinux-policy
 BuildRequires:  selinux-policy-%{selinuxtype}
 BuildRequires:  selinux-policy-devel
 
+# for rebuilding nodejs bits
+BuildRequires: npm
+BuildRequires: sassc
+BuildRequires: local-npm-registry
+
 # This is the "cockpit" metapackage. It should only
 # Require, Suggest or Recommend other cockpit-xxx subpackages
 
@@ -196,8 +204,18 @@ BuildRequires:  python3-tox-current-env
 %setup -q -n cockpit-%{version}
 %autopatch -p1
 cp %SOURCE1 tools/cockpit.pam
+#
+local-npm-registry %{_sourcedir} install --also=dev --legacy-peer-deps
 
 %build
+find node_modules -name \*.node -print -delete
+touch node_modules/.stamp
+
+exec 2>&1
+PKG_NAME="Cockpit"
+echo %version > .tarball
+autoreconf -fvi -I tools
+#
 %configure \
     %{?selinux_configure_arg} \
     --with-cockpit-user=cockpit-ws \
@@ -223,7 +241,8 @@ make -j$(nproc) check
 %endif
 
 %install
-%make_install
+# In obs we get  write error: stdout
+%make_install | tee make_install.log
 make install-tests DESTDIR=%{buildroot}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
@@ -357,6 +376,9 @@ rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-selinux.metai
 rm -f %{buildroot}%{_datadir}/metainfo/org.cockpit-project.cockpit-networkmanager.metainfo.xml
 rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 %endif
+
+mkdir -p %{buildroot}%{_datadir}/cockpit/devel
+cp -a pkg/lib %{buildroot}%{_datadir}/cockpit/devel
 
 # -------------------------------------------------------------------------------
 # Basic Sub-packages
@@ -714,6 +736,15 @@ These files are not required for running Cockpit.
 %{pamdir}/mock-pam-conv-mod.so
 %{_unitdir}/cockpit-session.socket
 %{_unitdir}/cockpit-session@.service
+
+%package devel
+Summary: Development files for for Cockpit
+
+%description devel
+This package contains files used to develop cockpit modules
+
+%files devel
+%{_datadir}/cockpit/devel
 
 %package -n cockpit-pcp
 Summary: Cockpit PCP integration
