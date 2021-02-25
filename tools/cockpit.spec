@@ -60,7 +60,7 @@ URL:            https://cockpit-project.org/
 
 Version:        238.1
 Release:        0
-Source0:        cockpit-%{version}.tar
+Source0:        cockpit-%{version}.tar.gz
 Source1:        cockpit.pam
 Source2:        cockpit-rpmlintrc
 Source99:       README.packaging
