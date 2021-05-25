@@ -77,7 +77,7 @@ Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{v
 %endif
 
 # Ship custom SELinux policy only in Fedora and RHEL-9 onward
-%if 0%{?rhel} >= 9 || 0%{?fedora}
+%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version}
 %define selinuxtype targeted
 %define with_selinux 1
 %define selinux_policy_version %(rpm --quiet -q selinux-policy && rpm -q --queryformat "%{V}-%{R}" selinux-policy || echo 1)
@@ -129,6 +129,7 @@ BuildRequires: xmlto
 
 %if 0%{?with_selinux}
 BuildRequires:  selinux-policy
+BuildRequires:  selinux-policy-%{selinuxtype}
 BuildRequires:  selinux-policy-devel
 %endif
 
@@ -307,6 +308,9 @@ rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storage
 sed -i "s|%{buildroot}||" *.list
 
 %if 0%{?suse_version}
+# setroubleshoot not yet in
+rm -r %{buildroot}%{_datadir}/cockpit/selinux
+rm %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 # remove brandings with stale symlinks. Means they don't match
 # the distro.
 pushd %{buildroot}/%{_datadir}/cockpit/branding
@@ -602,7 +606,7 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %endif
 
-%if 0%{?rhel} == 0
+%if 0%{?rhel} == 0 && !0%{?suse_version}
 
 %package selinux
 Summary: Cockpit SELinux package
