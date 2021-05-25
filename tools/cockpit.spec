@@ -49,7 +49,7 @@ Summary:        Web Console for Linux servers
 License:        LGPL-2.1-or-later
 URL:            https://cockpit-project.org/
 
-Version:        322
+Version:        322 
 Release:        0
 Source0:        https://github.com/cockpit-project/cockpit/releases/download/%{version}/cockpit-%{version}.tar.xz
 
@@ -71,8 +71,12 @@ ExcludeArch: %{ix86}
 %endif
 
 # Ship custom SELinux policy
+%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version}
+%if "%{name}" == "cockpit"
 %define selinuxtype targeted
 %define selinux_configure_arg --enable-selinux-policy=%{selinuxtype}
+%endif
+%endif
 
 BuildRequires: gcc
 BuildRequires: pkgconfig(gio-unix-2.0)
@@ -121,6 +125,7 @@ BuildRequires: gdb
 BuildRequires: xmlto
 
 BuildRequires:  selinux-policy
+BuildRequires:  selinux-policy-%{selinuxtype}
 BuildRequires:  selinux-policy-devel
 
 # This is the "cockpit" metapackage. It should only
@@ -247,7 +252,16 @@ find %{buildroot}%{_datadir}/cockpit/static -type f >> static.list
 
 sed -i "s|%{buildroot}||" *.list
 
-%if ! 0%{?suse_version}
+%if 0%{?suse_version}
+# setroubleshoot not yet in
+rm -r %{buildroot}%{_datadir}/cockpit/selinux
+rm %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
+# remove brandings with stale symlinks. Means they don't match
+# the distro.
+pushd %{buildroot}/%{_datadir}/cockpit/branding
+find -L * -type l -printf "%H\n" | sort -u | xargs rm -rv
+popd
+%else
 %global _debugsource_packages 1
 %global _debuginfo_subpackages 0
 
@@ -532,7 +546,7 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %endif
 
-%if 0%{?rhel} == 0
+%if 0%{?rhel} == 0 && !0%{?suse_version}
 
 %package selinux
 Summary: Cockpit SELinux package
