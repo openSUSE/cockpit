@@ -59,6 +59,7 @@ Source99:       README.packaging
 Source98:       package-lock.json
 Source97:       node_modules.spec.inc
 %include        %{_sourcedir}/node_modules.spec.inc
+Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
 
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{pcp})
