@@ -59,6 +59,7 @@ Source99:       README.packaging
 Source98:       package-lock.json
 Source97:       node_modules.spec.inc
 %include        %{_sourcedir}/node_modules.spec.inc
+Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
 
 # Don't change the bridge in the RHEL 8; the old SSH breaks some features, see @todoPybridgeRHEL8
 %if 0%{?rhel} == 8 && !%{defined enable_old_bridge}
