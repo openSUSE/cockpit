@@ -59,6 +59,7 @@ Source99:       README.packaging
 Source98:       package-lock.json
 Source97:       node_modules.spec.inc
 %include        %{_sourcedir}/node_modules.spec.inc
+Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
 
 # pcp stopped building on ix86
 %define build_pcp 1
