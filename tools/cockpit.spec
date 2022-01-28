@@ -104,6 +104,8 @@ BuildRequires: distribution-release
 BuildRequires: openssh
 BuildRequires: distribution-logos
 BuildRequires: wallpaper-branding
+# needed for /var/lib/pcp directory ownership
+BuildRequires: pcp
 %else
 BuildRequires: openssh-clients
 BuildRequires: docbook-style-xsl
