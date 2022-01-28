@@ -129,6 +129,8 @@ BuildRequires: libpcp_import1
 BuildRequires: openssh
 BuildRequires: distribution-logos
 BuildRequires: wallpaper-branding
+# needed for /var/lib/pcp directory ownership
+BuildRequires: pcp
 %else
 BuildRequires: pcp-libs-devel
 BuildRequires: openssh-clients
