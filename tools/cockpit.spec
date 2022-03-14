@@ -550,6 +550,12 @@ if [ "$1" = 1 ]; then
     ln -s ../../run/cockpit/motd /etc/motd.d/cockpit
     ln -s ../../run/cockpit/motd /etc/issue.d/cockpit.issue
 fi
+# switch old self-signed cert group from cockpit-wsintance to cockpit-ws on upgrade
+if [ "$1" = 2 ]; then
+    certfile=/etc/cockpit/ws-certs.d/0-self-signed.cert
+    test -f $certfile && stat -c '%G' $certfile | grep -q cockpit-wsinstance && chgrp cockpit-ws $certfile
+fi
+
 %if 0%{?suse_version}
 %set_permissions %{_libexecdir}/cockpit-session
 %endif
