@@ -9,7 +9,7 @@
         "index": {
             "label": "Overview",
             "order": 10,
-            "docs": [
+            "docs-rh": [
                 {
                     "label": "Configuring system settings",
                     "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/getting-started-with-the-rhel-8-web-console_system-management-using-the-rhel-8-web-console"
@@ -32,7 +32,7 @@
         "services": {
             "label": "Services",
             "order": 100,
-            "docs": [
+            "docs-rh": [
                 {
                     "label": "Managing services",
                     "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/managing-services-in-the-web-console_system-management-using-the-rhel-8-web-console"
@@ -51,7 +51,7 @@
         "logs": {
             "label": "Logs",
             "order": 20,
-            "docs": [
+            "docs-rh": [
                 {
                     "label": "Reviewing logs",
                     "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/reviewing-logs_system-management-using-the-rhel-8-web-console"

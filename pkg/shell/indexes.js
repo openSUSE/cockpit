@@ -413,7 +413,7 @@ function MachinesIndex(index_options, machines, loader, mdialogs) {
         if (os_release.DOCUMENTATION_URL)
             create_item(cockpit.format(_("$0 documentation"), os_release.NAME), os_release.DOCUMENTATION_URL);
 
-        create_item(_("Web Console"), "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index");
+        // create_item(_("Web Console"), "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/index");
 
         docs.forEach(e => create_item(_(e.label), e.url));
 

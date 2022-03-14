@@ -8,7 +8,7 @@
         "index": {
             "label": "Networking",
             "order": 40,
-            "docs": [
+            "docs-rh": [
                 {
                     "label": "Managing networking bonds",
                     "url": "https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_systems_using_the_rhel_8_web_console/configuring-network-bonds-using-the-web-console_system-management-using-the-rhel-8-web-console"
