@@ -473,8 +473,12 @@ if [ "$1" = 1 ]; then
     chmod 644 /etc/cockpit/disallowed-users
 fi
 
-# on upgrades, adjust motd/issue links to changed target if they still exist (changed in 331)
 if [ "$1" = 2 ]; then
+    # switch old self-signed cert group from cockpit-wsintance to cockpit-ws on upgrade
+    certfile=/etc/cockpit/ws-certs.d/0-self-signed.cert
+    test -f $certfile && stat -c '%G' $certfile | grep -q cockpit-wsinstance && chgrp cockpit-ws $certfile
+
+    # on upgrades, adjust motd/issue links to changed target if they still exist (changed in 331)
     if [ "$(readlink /etc/motd.d/cockpit 2>/dev/null)" = "../../run/cockpit/motd" ]; then
         ln -sfn ../../run/cockpit/issue /etc/motd.d/cockpit
     fi
