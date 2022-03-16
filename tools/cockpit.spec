@@ -463,6 +463,8 @@ Requires(postun): systemd
 %else
 Requires: group(wheel)
 Requires(pre): permissions
+Requires: distribution-logos
+Requires: wallpaper-branding
 %endif
 
 %description ws
