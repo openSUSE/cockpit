@@ -494,6 +494,8 @@ Recommends: system-logos
 Suggests: sssd-dbus
 %if 0%{?suse_version}
 Requires(pre): permissions
+Requires: distribution-logos
+Requires: wallpaper-branding
 %endif
 
 %description ws
