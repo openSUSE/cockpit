@@ -1,0 +1,87 @@
+/* Extra overrides */
+:root {
+    --eos-bc-green-500: #30ba78;
+    --eos-bc-pine-500: #0c322c;
+    --eos-bc-gray-50: #F2F2F2;
+    --eos-bc-white: #ffffff;
+    --eos-bc-text: #333;
+}
+
+
+#brand:before {
+    content: "${PRETTY_NAME}";
+}
+
+.login-pf .container {
+    background-color: rgba(255, 255, 255);
+}
+
+#option-group svg polygon {
+    fill: var(--eos-bc-text);
+}
+
+/* Nav & sidebar overwrites */
+.navbar-pf {
+   background: var(--eos-bc-pine-500);
+}
+
+.navbar-pf-vertical {
+  border-top: none;
+}
+
+
+/* Default overrides */
+
+.login-note {
+    color: transparent;
+    position: relative;
+}
+
+body.login-pf {
+    background-color: var(--eos-bc-pine-500);
+    color: var(--eos-bc-text);
+}
+
+/* Only use background image on desktops */
+@media(min-width: 1024px) {
+    body.login-pf {
+        background-image: url("default-1920x1200.png");
+        background-repeat: no-repeat;
+        background-position: 100% 0 !important;
+        background-size: cover;
+    }
+}
+/* Hide badge on desktops (already included in background) */
+@media(max-width: 1023px) {
+    #badge {
+        width: 51px;
+        height: 45px;
+        background-image: url("square-hicolor.svg");
+        background-repeat: no-repeat;
+    }
+}
+
+#brand {
+    width: auto;
+    height: auto;
+    background-image: none;
+    background-repeat: no-repeat;
+    font-size: 2em;
+    white-space: nowrap;
+}
+/* Switch to small font faster to not clip long name */
+@media(max-width: 560px) {
+    #brand {
+        font-size: inherit;
+    }
+}
+
+#index-brand {
+    font-weight: bold;
+}
+
+#index-brand:before {
+    content: "${PRETTY_NAME}";
+}
+
+
