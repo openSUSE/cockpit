@@ -60,6 +60,9 @@ Source98:       package-lock.json
 Source97:       node_modules.spec.inc
 %include        %{_sourcedir}/node_modules.spec.inc
 Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
+# SLE Micro specific patches
+Patch100:       remove-pwscore.patch
+Patch101:       hide-pcp.patch
 
 # pcp stopped building on ix86
 %define build_pcp 1
@@ -170,7 +173,14 @@ BuildRequires:  python3-tox-current-env
 
 %prep
 %setup -q -n cockpit-%{version}
-%autopatch -p1
+%patch0 -p1
+%patch1 -p1
+
+%if 0%{?sle_version}
+%patch100 -p1
+%patch101 -p1
+%endif
+
 cp %SOURCE1 tools/cockpit.pam
 #
 local-npm-registry %{_sourcedir} install --also=dev --legacy-peer-deps
@@ -372,7 +382,9 @@ Requires: cockpit-bridge >= %{version}-%{release}
 Requires: shadow-utils
 %endif
 Requires: grep
+%if !0%{?sle_version}
 Requires: /usr/bin/pwscore
+%endif
 Requires: /usr/bin/date
 Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
