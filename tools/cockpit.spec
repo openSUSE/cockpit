@@ -65,6 +65,9 @@ Source98:       package-lock.json
 Source97:       node_modules.spec.inc
 %include        %{_sourcedir}/node_modules.spec.inc
 Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
+# SLE Micro specific patches
+Patch100:       remove-pwscore.patch
+Patch101:       hide-pcp.patch
 
 %if 0%{?fedora} >= 41 || 0%{?rhel}
 ExcludeArch: %{ix86}
@@ -173,6 +176,14 @@ BuildRequires:  python3-pytest-timeout
 %setup -q -n cockpit-%{version}
 %if 0%{?rebuild_bundle}
 %setup -q -D -T -a 1 -n cockpit-%{version}
+%endif
+
+%patch0 -p1
+%patch1 -p1
+
+%if 0%{?sle_version}
+%patch100 -p1
+%patch101 -p1
 %endif
 
 #
@@ -379,7 +390,9 @@ Requires: cockpit-bridge >= %{version}-%{release}
 Requires: shadow-utils
 %endif
 Requires: grep
+%if !0%{?sle_version}
 Requires: /usr/bin/pwscore
+%endif
 Requires: /usr/bin/date
 Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
