@@ -194,7 +194,7 @@ touch node_modules/.stamp
 
 exec 2>&1
 PKG_NAME="Cockpit"
-echo %version > .tarball
+echo "m4_define(VERSION_NUMBER, %version)" > version.m4
 autoreconf -fvi -I tools
 #
 %configure \
