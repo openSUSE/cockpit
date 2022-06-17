@@ -63,6 +63,7 @@ Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
 # SLE Micro specific patches
 Patch100:       remove-pwscore.patch
 Patch101:       hide-pcp.patch
+Patch102:       css-overrides.patch
 
 # Experimental Python support
 %if !%{defined cockpit_enable_python}
