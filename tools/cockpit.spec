@@ -63,6 +63,7 @@ Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
 # SLE Micro specific patches
 Patch100:       remove-pwscore.patch
 Patch101:       hide-pcp.patch
+Patch102:       css-overrides.patch
 
 # pcp stopped building on ix86
 %define build_pcp 1
