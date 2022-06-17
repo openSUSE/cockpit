@@ -63,6 +63,7 @@ Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
 # SLE Micro specific patches
 Patch100:       remove-pwscore.patch
 Patch101:       hide-pcp.patch
+Patch102:       css-overrides.patch
 
 # Don't change the bridge in the RHEL 8; the old SSH breaks some features, see @todoPybridgeRHEL8
 %if 0%{?rhel} == 8 && !%{defined enable_old_bridge}
