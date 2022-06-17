@@ -63,6 +63,7 @@ Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
 # SLE Micro specific patches
 Patch100:       remove-pwscore.patch
 Patch101:       hide-pcp.patch
+Patch102:       css-overrides.patch
 
 # in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
 # and cockpit-appstream (building optional packages like cockpit-{pcp})
