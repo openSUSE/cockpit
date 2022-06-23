@@ -627,6 +627,7 @@ Summary: Cockpit user interface for networking, using NetworkManager
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
 Requires: NetworkManager >= 1.6
+Conflicts: cockpit-wicked
 # Optional components
 Recommends: NetworkManager-team
 BuildArch: noarch
