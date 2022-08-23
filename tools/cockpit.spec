@@ -55,6 +55,7 @@ Release:        0
 Source0:        cockpit-%{version}.tar.gz
 Source1:        cockpit.pam
 Source2:        cockpit-rpmlintrc
+Source3:        cockpit-suse-theme.tar
 Source99:       README.packaging
 Source98:       package-lock.json
 Source97:       node_modules.spec.inc
@@ -161,8 +162,7 @@ BuildRequires:  python3-pytest-timeout
 %endif
 
 %prep
-%setup -q -n cockpit-%{version}
-%patch0 -p1
+%setup -q -n cockpit-%{version} -a 3
 %patch1 -p1
 
 %if 0%{?sle_version}
@@ -211,6 +211,13 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
+
+mkdir -p %{buildroot}%{_datadir}/cockpit/branding/suse
+pushd cockpit-suse-theme
+cp src/css-overrides.css %{buildroot}%{_datadir}/cockpit/branding/suse
+cp src/fonts.css %{buildroot}%{_datadir}/cockpit/branding/suse
+cp -a src/fonts %{buildroot}%{_datadir}/cockpit/branding/suse
+popd
 
 # Build the package lists for resource packages
 # cockpit-bridge is the basic dependency for all cockpit-* packages, so centrally own the page directory
@@ -266,10 +273,11 @@ rm %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-selinux.me
 # remove brandings with stale symlinks. Means they don't match
 # the distro.
 pushd %{buildroot}/%{_datadir}/cockpit/branding
-find -L * -type l -printf "%H\n" | sort -u | xargs rm -rv
+ls --hide={default,kubernetes,opensuse,registry,sle-micro,suse} | xargs rm -rv
 popd
 # need this in SUSE as post build checks dislike stale symlinks
 install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
+install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/opensuse/default-1920x1200.jpg ||:
 # remove files of not installable packages
 rm -r %{buildroot}%{_datadir}/cockpit/sosreport
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit_project.cockpit_sosreport.metainfo.xml
