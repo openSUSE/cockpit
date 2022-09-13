@@ -61,6 +61,10 @@ Source98:       package-lock.json
 Source97:       node_modules.spec.inc
 %include        %{_sourcedir}/node_modules.spec.inc
 Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
+Patch2:         hide-docs.patch
+Patch3:         suse-microos-branding.patch
+Patch4:         css-overrides.patch
+Patch5:         storage-btrfs.patch
 # SLE Micro specific patches
 Patch100:       remove-pwscore.patch
 Patch101:       hide-pcp.patch
@@ -179,6 +183,10 @@ Requires: subscription-manager-cockpit
 %prep
 %setup -q -n cockpit-%{version} -a 3
 %patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %if 0%{?sle_version}
 %patch100 -p1
