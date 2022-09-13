@@ -61,10 +61,13 @@ Source98:       package-lock.json
 Source97:       node_modules.spec.inc
 %include        %{_sourcedir}/node_modules.spec.inc
 Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
+Patch2:         hide-docs.patch
+Patch3:         suse-microos-branding.patch
+Patch4:         css-overrides.patch
+Patch5:         storage-btrfs.patch
 # SLE Micro specific patches
-Patch100:       remove-pwscore.patch
 Patch101:       hide-pcp.patch
-Patch102:       css-overrides.patch
+Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 
 # Don't change the bridge in the RHEL 8; the old SSH breaks some features, see @todoPybridgeRHEL8
 %if 0%{?rhel} == 8 && !%{defined enable_old_bridge}
@@ -219,10 +222,22 @@ BuildRequires:  python3-tox-current-env
 %prep
 %setup -q -n cockpit-%{version} -a 3
 %patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
-%if 0%{?sle_version}
-%patch100 -p1
+# SLE Micro specific patches
+%if 0%{?is_smo}
 %patch101 -p1
+# Patches for versions lower then SLE Micro 5.5
+%if 0%{?sle_version} < 150500
+%patch102 -p1
+%endif
+%endif
+# For anything based on SLES 15 codebase (including Leap, SLEM)
+%if 0%{?suse_version} == 1500
+%patch103 -p1
 %endif
 
 cp %SOURCE1 tools/cockpit.pam
@@ -256,6 +271,9 @@ autoreconf -fvi -I tools
     --disable-pcp \
 %endif
 
+make -f /usr/share/selinux/devel/Makefile cockpit.pp
+bzip2 -9 cockpit.pp
+
 %make_build
 
 %check
@@ -274,6 +292,14 @@ install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
+# selinux
+install -D -m 644 %{name}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
+install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_session_selinux.8cockpit
+install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_ws_selinux.8cockpit
+# create this directory in the build root so that %ghost sees the desired mode
+install -d -m 700 %{buildroot}%{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
+
+# SUSE branding
 mkdir -p %{buildroot}%{_datadir}/cockpit/branding/suse
 pushd cockpit-suse-theme
 cp src/css-overrides.css %{buildroot}%{_datadir}/cockpit/branding/suse
@@ -379,9 +405,6 @@ rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storage
 sed -i "s|%{buildroot}||" *.list
 
 %if 0%{?suse_version}
-# setroubleshoot not yet in
-rm -r %{buildroot}%{_datadir}/cockpit/selinux
-rm %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-selinux.metainfo.xml
 # remove brandings with stale symlinks. Means they don't match
 # the distro.
 pushd %{buildroot}/%{_datadir}/cockpit/branding
@@ -485,9 +508,7 @@ Requires: cockpit-bridge >= %{version}-%{release}
 Requires: shadow-utils
 %endif
 Requires: grep
-%if !0%{?sle_version}
 Requires: /usr/bin/pwscore
-%endif
 Requires: /usr/bin/date
 Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
@@ -713,14 +734,18 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 
 %endif
 
-%if 0%{?rhel} == 0 && !0%{?suse_version}
+%if 0%{?rhel} == 0 && ( 0%{?suse_version} >= 1500 || 0%{?is_smo} )
 
 %package selinux
 Summary: Cockpit SELinux package
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
-Requires: setroubleshoot-server >= 3.3.3
-BuildArch: noarch
+Requires:       policycoreutils-python-utils >= 3.1
+# setroubleshoot is available on SLE Micro starting with 5.5)
+%if !0%{?is_smo}  || ( 0%{?is_smo} && 0%{?sle_version} >= 150500 )
+Requires:       setroubleshoot-server >= 3.3.3
+%endif
+BuildArch:      noarch
 
 %description selinux
 This package contains the Cockpit user interface integration with the
