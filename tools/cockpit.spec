@@ -55,6 +55,7 @@ Release:        0
 Source0:        cockpit-%{version}.tar
 Source1:        cockpit.pam
 Source2:        cockpit-rpmlintrc
+Source3:        cockpit-suse-theme.tar
 Source99:       README.packaging
 Source98:       package-lock.json
 Source97:       node_modules.spec.inc
@@ -182,7 +183,7 @@ Requires: subscription-manager-cockpit
 %endif
 
 %prep
-%setup -q -n cockpit-%{version}
+%setup -q -n cockpit-%{version} -a 3
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -235,6 +236,13 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
+
+mkdir -p %{buildroot}%{_datadir}/cockpit/branding/suse
+pushd cockpit-suse-theme
+cp src/css-overrides.css %{buildroot}%{_datadir}/cockpit/branding/suse
+cp src/fonts.css %{buildroot}%{_datadir}/cockpit/branding/suse
+cp -a src/fonts %{buildroot}%{_datadir}/cockpit/branding/suse
+popd
 
 # only ship deprecated PatternFly API for stable releases
 %if 0%{?rhel} == 8
@@ -349,7 +357,7 @@ rm %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-selinux.me
 # remove brandings with stale symlinks. Means they don't match
 # the distro.
 pushd %{buildroot}/%{_datadir}/cockpit/branding
-ls --hide={default,kubernetes,opensuse,registry,sle-micro} | xargs rm -rv
+ls --hide={default,kubernetes,opensuse,registry,sle-micro,suse} | xargs rm -rv
 popd
 # need this in SUSE as post build checks dislike stale symlinks
 install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
