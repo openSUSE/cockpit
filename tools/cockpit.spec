@@ -676,14 +676,16 @@ Dummy package from building optional packages only; never install or publish me.
 Summary: Cockpit user interface for storage, using udisks
 Requires: cockpit-shell >= %{required_base}
 Requires: udisks2 >= 2.9
+Requires: %{__python3}
+%if 0%{?suse_version}
+Requires: libudisks2-0_lvm2 >= 2.9
+Recommends: multipath-tools
+Requires: python3-dbus-python
+%else
 Recommends: udisks2-lvm2 >= 2.9
 Recommends: udisks2-iscsi >= 2.9
 Recommends: device-mapper-multipath
 Recommends: clevis-luks
-Requires: %{__python3}
-%if 0%{?suse_version}
-Requires: python3-dbus-python
-%else
 Requires: python3-dbus
 %endif
 BuildArch: noarch
