@@ -65,9 +65,6 @@ Patch2:         hide-docs.patch
 Patch3:         suse-microos-branding.patch
 Patch4:         css-overrides.patch
 Patch5:         storage-btrfs.patch
-Patch6:         kdump-close.patch
-Patch7:         kdump-refactor.patch
-Patch8:         kdump-suse.patch
 # SLE Micro specific patches
 Patch100:       remove-pwscore.patch
 Patch101:       hide-pcp.patch
@@ -190,9 +187,6 @@ Requires: subscription-manager-cockpit
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
 
 %if 0%{?sle_version}
 %patch100 -p1
