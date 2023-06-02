@@ -66,7 +66,6 @@ Patch3:         suse-microos-branding.patch
 Patch4:         css-overrides.patch
 Patch5:         storage-btrfs.patch
 # SLE Micro specific patches
-Patch100:       remove-pwscore.patch
 Patch101:       hide-pcp.patch
 Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 
@@ -222,7 +221,6 @@ BuildRequires:  python3-tox-current-env
 
 # SLE Micro specific patches
 %if 0%{?is_smo}
-%patch100 -p1
 %patch101 -p1
 %patch102 -p1
 %endif
