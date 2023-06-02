@@ -248,8 +248,13 @@ make -j$(nproc) check
 # In obs we get  write error: stdout
 %make_install | tee make_install.log
 make install-tests DESTDIR=%{buildroot}
+%if 0%{?suse_version} > 1500
+mkdir -p $RPM_BUILD_ROOT%{_pam_vendordir}
+install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_pam_vendordir}/cockpit
+%else
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
+%endif
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
@@ -321,6 +326,48 @@ find %{buildroot}%{_datadir}/cockpit/playground -type f >> tests.list
 echo '%dir %{_datadir}/cockpit/static' > static.list
 echo '%dir %{_datadir}/cockpit/static/fonts' >> static.list
 find %{buildroot}%{_datadir}/cockpit/static -type f >> static.list
+
+# when not building basic packages, remove their files
+%if 0%{?build_basic} == 0
+for pkg in base1 branding motd kdump networkmanager selinux shell sosreport static systemd users metrics; do
+    rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
+    rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
+done
+for data in doc man pixmaps polkit-1; do
+    rm -r %{buildroot}/%{_datadir}/$data
+done
+rm -r %{buildroot}/%{_prefix}/%{__lib}/tmpfiles.d
+find %{buildroot}/%{_unitdir}/ -type f ! -name 'cockpit-session*' -delete
+for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
+    rm -f %{buildroot}/%{_libexecdir}/$libexec
+done
+rm -r %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
+%if 0%{?suse_version} > 1500
+rm -r %{buildroot}/%{_pam_vendordir}
+%else
+rm -r %{buildroot}/%{_sysconfdir}/pam.d
+%endif
+rm -f %{buildroot}/%{_libdir}/security/pam_*
+rm -f %{buildroot}/usr/bin/cockpit-bridge
+rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
+rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
+rm -rf %{buildroot}%{python3_sitelib}/cockpit*
+%endif
+
+# when not building optional packages, remove their files
+%if 0%{?build_optional} == 0
+for pkg in apps packagekit pcp playground storaged; do
+    rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
+done
+# files from -tests
+rm -f %{buildroot}/%{pamdir}/mock-pam-conv-mod.so
+rm -f %{buildroot}/%{_unitdir}/cockpit-session.socket
+rm -f %{buildroot}/%{_unitdir}/cockpit-session@.service
+# files from -pcp
+rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
+# files from -storaged
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
+%endif
 
 sed -i "s|%{buildroot}||" *.list
 
@@ -492,7 +539,11 @@ authentication via sssd/FreeIPA.
 %doc %{_mandir}/man8/pam_ssh_add.8.gz
 %dir %{_sysconfdir}/cockpit
 %config(noreplace) %{_sysconfdir}/cockpit/ws-certs.d
+%if 0%{?suse_version} > 1500
+%{_pam_vendordir}/cockpit
+%else
 %config(noreplace) %{_sysconfdir}/pam.d/cockpit
+%endif
 # dir is not owned by pam in openSUSE
 %dir %{_sysconfdir}/motd.d
 # created in %post, so that users can rm the files
@@ -543,6 +594,12 @@ getent passwd cockpit-wsinstance >/dev/null || useradd -r -g cockpit-wsinstance 
 if %{_sbindir}/selinuxenabled 2>/dev/null; then
     %selinux_relabel_pre -s %{selinuxtype}
 fi
+%if 0%{?suse_version} > 1500
+# Prepare for migration to /usr/lib; save any old .rpmsave
+for i in pam.d/cockpit ; do
+     test -f %{_sysconfdir}/${i}.rpmsave && mv -v %{_sysconfdir}/${i}.rpmsave %{_sysconfdir}/${i}.rpmsave.old ||:
+done
+%endif
 
 %post ws
 if [ -x %{_sbindir}/selinuxenabled ]; then
@@ -595,6 +652,14 @@ fi
 %if 0%{?suse_version}
 %verifyscript ws
 %verify_permissions -e %{_libexecdir}/cockpit-session
+%endif
+
+%if 0%{?suse_version} > 1500
+%posttrans ws
+# Migration to /usr/lib, restore just created .rpmsave
+for i in pam.d/cockpit ; do
+     test -f %{_sysconfdir}/${i}.rpmsave && mv -v %{_sysconfdir}/${i}.rpmsave %{_sysconfdir}/${i} ||:
+done
 %endif
 
 # -------------------------------------------------------------------------------
