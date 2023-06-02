@@ -229,10 +229,8 @@ export NO_BRP_STALE_LINK_ERROR="yes"
 # In obs we get  write error: stdout
 %make_install | tee make_install.log
 make install-tests DESTDIR=%{buildroot}
-
 mkdir -p $RPM_BUILD_ROOT%{pamconfdir}
 install -p -m 644 %{pamconfig} $RPM_BUILD_ROOT%{pamconfdir}/cockpit
-
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
@@ -295,6 +293,46 @@ find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
 echo '%dir %{_datadir}/cockpit/static' > static.list
 echo '%dir %{_datadir}/cockpit/static/fonts' >> static.list
 find %{buildroot}%{_datadir}/cockpit/static -type f >> static.list
+
+# when not building basic packages, remove their files
+%if 0%{?build_basic} == 0
+for pkg in base1 branding motd kdump networkmanager selinux shell sosreport static systemd users metrics; do
+    rm -r %{buildroot}/%{_datadir}/cockpit/$pkg
+    rm -f %{buildroot}/%{_datadir}/metainfo/org.cockpit-project.cockpit-${pkg}.metainfo.xml
+done
+for data in doc man pixmaps polkit-1; do
+    rm -r %{buildroot}/%{_datadir}/$data
+done
+rm -r %{buildroot}/%{_prefix}/%{__lib}/tmpfiles.d
+find %{buildroot}/%{_unitdir}/ -type f ! -name 'cockpit-session*' -delete
+for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
+    rm -f %{buildroot}/%{_libexecdir}/$libexec
+done
+rm -rf %{buildroot}/%{_sysconfdir}/pam.d %{buildroot}/%{_sysconfdir}/motd.d %{buildroot}/%{_sysconfdir}/issue.d
+%if 0%{?suse_version} > 1500
+rm -rf %{buildroot}/%{_pam_vendordir}
+%else
+rm -rf %{buildroot}/%{_sysconfdir}/pam.d
+%endif
+rm -f %{buildroot}/%{_libdir}/security/pam_*
+rm -f %{buildroot}/usr/bin/cockpit-bridge
+rm -f %{buildroot}%{_libexecdir}/cockpit-ssh
+rm -f %{buildroot}%{_datadir}/metainfo/cockpit.appdata.xml
+rm -rf %{buildroot}%{python3_sitelib}/cockpit*
+%endif
+
+# when not building optional packages, remove their files
+%if 0%{?build_optional} == 0
+for pkg in apps packagekit playground storaged; do
+    rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
+done
+# files from -tests
+rm -f %{buildroot}/%{pamdir}/mock-pam-conv-mod.so
+rm -f %{buildroot}/%{_unitdir}/cockpit-session.socket
+rm -f %{buildroot}/%{_unitdir}/cockpit-session@.service
+# files from -storaged
+rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
+%endif
 
 sed -i "s|%{buildroot}||" *.list
 
@@ -455,7 +493,6 @@ authentication via sssd/FreeIPA.
 %dir %{pamconfdir}
 %dir %{_sysconfdir}/motd.d
 %config(noreplace) %{pamconfdir}/cockpit
-
 # created in %post, so that users can rm the files
 %ghost %{_sysconfdir}/issue.d/cockpit.issue
 %ghost %{_sysconfdir}/motd.d/cockpit
@@ -492,6 +529,24 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-certificate-helper
 %{?suse_version:%verify(not mode) }%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
+
+%pre ws
+%if 0%{?suse_version} == 1500
+# HACK: old RPM and even Fedora's current RPM don't properly support sysusers
+# https://github.com/rpm-software-management/rpm/issues/3073
+getent group cockpit-wsinstance-socket >/dev/null || groupadd -r cockpit-wsinstance-socket
+getent group cockpit-session-socket >/dev/null || groupadd -r cockpit-session-socket
+getent passwd cockpit-wsinstance-socket >/dev/null || useradd -r -g cockpit-wsinstance-socket -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance-socket
+getent passwd cockpit-session-socket >/dev/null || useradd -r -g cockpit-session-socket -d /nonexisting -s /sbin/nologin -c "User for cockpit-session instances" cockpit-session-socket
+getent passwd cockpit-systemd-service >/dev/null || useradd -r -g cockpit-wsinstance-socket -d /nonexisting -s /sbin/nologin -c "User for cockpit.service" cockpit-systemd-service
+%endif
+
+%if 0%{?suse_version} > 1500
+# Prepare for migration to /usr/lib; save any old .rpmsave
+for i in pam.d/cockpit ; do
+     test -f %{_sysconfdir}/${i}.rpmsave && mv -v %{_sysconfdir}/${i}.rpmsave %{_sysconfdir}/${i}.rpmsave.old ||:
+done
+%endif
 
 %post ws
 # set up dynamic motd/issue symlinks on first-time install; don't bring them back on upgrades if admin removed them
@@ -551,6 +606,15 @@ fi
 %verify_permissions -e %{_libexecdir}/cockpit-session
 %endif
 
+%if 0%{?suse_version} > 1500
+%posttrans ws
+# Migration to /usr/lib, restore just created .rpmsave
+for i in pam.d/cockpit ; do
+     test -f %{_sysconfdir}/${i}.rpmsave && mv -v %{_sysconfdir}/${i}.rpmsave %{_sysconfdir}/${i} ||:
+done
+%endif
+
+%if 0%{?with_selinux}
 %package ws-selinux
 Summary: SELinux security policy for cockpit-ws
 # older -ws contained the SELinux policy, now split out
