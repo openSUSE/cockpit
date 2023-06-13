@@ -400,6 +400,7 @@ ls --hide={default,kubernetes,opensuse,registry,sle-micro,suse} | xargs rm -rv
 popd
 # need this in SUSE as post build checks dislike stale symlinks
 install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
+install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/opensuse/default-1920x1200.jpg ||:
 # remove files of not installable packages
 rm -r %{buildroot}%{_datadir}/cockpit/sosreport
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
