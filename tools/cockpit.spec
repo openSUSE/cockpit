@@ -69,6 +69,15 @@ Patch5:         storage-btrfs.patch
 Patch101:       hide-pcp.patch
 Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 
+# Leap specific patch
+
+%if 0%{?is_smo}
+# Ensure we do not affect Micro with SLE/Leap specifi patches
+%else
+%if 0%{?sle_version} >= 150400 && 0%{?sle_version} <= 150700
+Patch103:       0004-leap-gnu11.patch
+%endif
+%endif
 # Experimental Python support
 %if !%{defined cockpit_enable_python}
 %define cockpit_enable_python 0
@@ -107,10 +116,13 @@ Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 %endif
 
 # Ship custom SELinux policy (but not for cockpit-appstream)
-%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version}
+# SLES / Leap 15 does not have selinux-policy. TW and SLE Micro does.
+%define with_selinux 0
+%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version} > 1500
 %if "%{name}" == "cockpit"
 %define selinuxtype targeted
-%define selinux_configure_arg --enable-selinux-policy=%{selinuxtype}
+%define with_selinux 1
+%define selinux_policy_version %(rpm --quiet -q selinux-policy && rpm -q --queryformat "%{V}-%{R}" selinux-policy || echo 1)
 %endif
 %endif
 
@@ -166,9 +178,11 @@ BuildRequires: gdb
 # For documentation
 BuildRequires: xmlto
 
+%if 0%{?with_selinux}
 BuildRequires:  selinux-policy
 BuildRequires:  selinux-policy-%{selinuxtype}
 BuildRequires:  selinux-policy-devel
+%endif
 
 # for rebuilding nodejs bits
 BuildRequires: npm
@@ -223,6 +237,10 @@ BuildRequires:  python3-tox-current-env
 %if 0%{?is_smo}
 %patch101 -p1
 %patch102 -p1
+%else
+%if 0%{?sle_version} >= 150400 && 0%{?sle_version} <= 150700
+%patch103 -p1
+%endif
 %endif
 
 cp %SOURCE1 tools/cockpit.pam
@@ -239,9 +257,10 @@ echo "m4_define(VERSION_NUMBER, %version)" > version.m4
 autoreconf -fvi -I tools
 #
 %configure \
-    %{?selinux_configure_arg} \
+    --disable-silent-rules \
     --with-cockpit-user=cockpit-ws \
     --with-cockpit-ws-instance-user=cockpit-wsinstance \
+    --with-selinux-config-type=etc_t \
 %if 0%{?suse_version}
     --docdir=%_defaultdocdir/%{name} \
 %endif
@@ -253,10 +272,12 @@ autoreconf -fvi -I tools
     --disable-ssh \
 %endif
 
-make -f /usr/share/selinux/devel/Makefile cockpit.pp
-bzip2 -9 cockpit.pp
+make -j4 %{?extra_flags} all
 
-%make_build
+%if 0%{?with_selinux}
+    make -f /usr/share/selinux/devel/Makefile cockpit.pp
+    bzip2 -9 cockpit.pp
+%endif
 
 %check
 make -j$(nproc) check
@@ -279,12 +300,13 @@ install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
-# selinux
-install -D -m 644 %{name}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
-install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_session_selinux.8cockpit
-install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_ws_selinux.8cockpit
-# create this directory in the build root so that %ghost sees the desired mode
-install -d -m 700 %{buildroot}%{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
+%if 0%{?with_selinux}
+    install -D -m 644 %{name}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
+    install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_session_selinux.8cockpit
+    install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_ws_selinux.8cockpit
+    # create this directory in the build root so that %ghost sees the desired mode
+    install -d -m 700 %{buildroot}%{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
+%endif
 
 # SUSE branding
 mkdir -p %{buildroot}%{_datadir}/cockpit/branding/suse
@@ -540,8 +562,10 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.50.0
-Requires: (selinux-policy >= %{_selinux_policy_version} if selinux-policy-%{selinuxtype})
+%if 0%{?with_selinux}
+Requires: (selinux-policy >= %{selinux_policy_version} if selinux-policy-%{selinuxtype})
 Requires(post): (policycoreutils if selinux-policy-%{selinuxtype})
+%endif
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
@@ -610,10 +634,12 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-certificate-helper
 %{?suse_version:%verify(not mode) }%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
+%if 0%{?with_selinux}
 %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
 %{_mandir}/man8/%{name}_session_selinux.8cockpit.*
 %{_mandir}/man8/%{name}_ws_selinux.8cockpit.*
 %ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
+%endif
 
 %pre ws
 getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
