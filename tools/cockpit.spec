@@ -71,7 +71,7 @@ Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 
 # For anything based on SLES 15 codebase (including Leap, SLE Micro)
 %if 0%{?sle_version} >= 150400 && 0%{?sle_version} <= 150700
-Patch103:       0004-leap-gnu11.patch
+Patch103:       0004-leap-gnu18-removal.patch
 %endif
 # Experimental Python support
 %if !%{defined cockpit_enable_python}
