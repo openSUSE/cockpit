@@ -68,6 +68,49 @@ Patch5:         storage-btrfs.patch
 # SLE Micro specific patches
 Patch101:       hide-pcp.patch
 Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
+# For anything based on SLES 15 codebase (including Leap, SLE Micro)
+Patch103:       0004-leap-gnu18-removal.patch
+
+%if 0%{?fedora} >= 38 || 0%{?rhel} >= 9
+%define cockpit_enable_python 1
+%endif
+
+# Experimental Python support
+%if !%{defined cockpit_enable_python}
+%define cockpit_enable_python 0
+%endif
+
+# in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
+# and cockpit-appstream (building optional packages like cockpit-{pcp})
+# This split does not apply to EPEL/COPR nor packit c8s builds, only to our own
+# image-prepare rhel-8-Y builds (which will disable build_all).
+# In Fedora ELN/RHEL 9+ there is just one source package, which ships rpms in both BaseOS and AppStream
+%define build_all 1
+%if 0%{?rhel} == 8 && 0%{?epel} == 0 && !0%{?build_all}
+
+%if "%{name}" == "cockpit"
+%define build_basic 1
+%define build_optional 0
+%else
+%define build_basic 0
+%define build_optional 1
+%endif
+
+%else
+%define build_basic 1
+%define build_optional 1
+%endif
+
+%if 0%{?build_optional} && 0%{?suse_version} == 0
+%define build_tests 1
+%endif
+
+# Allow root login in Cockpit on RHEL 8 and lower as it also allows password login over SSH.
+%if 0%{?rhel} && 0%{?rhel} <= 8
+%define disallow_root 0
+%else
+%define disallow_root 1
+%endif
 
 # pcp stopped building on ix86
 %define build_pcp 1
@@ -78,10 +121,11 @@ Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 %endif
 
 # Ship custom SELinux policy (but not for cockpit-appstream)
-%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version}
+%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version} >= 1600 || 0%{?is_smo}
 %if "%{name}" == "cockpit"
 %define selinuxtype targeted
 %define selinux_configure_arg --enable-selinux-policy=%{selinuxtype}
+%define with_selinux 1
 %endif
 %endif
 
@@ -133,9 +177,11 @@ BuildRequires: gdb
 # For documentation
 BuildRequires: xmlto
 
+%if 0%{?with_selinux}
 BuildRequires:  selinux-policy
 BuildRequires:  selinux-policy-%{selinuxtype}
 BuildRequires:  selinux-policy-devel
+%endif
 
 # for rebuilding nodejs bits
 BuildRequires: npm
@@ -222,8 +268,10 @@ autoreconf -fvi -I tools
     --disable-pcp \
 %endif
 
+%if 0%{?with_selinux}
 make -f /usr/share/selinux/devel/Makefile cockpit.pp
 bzip2 -9 cockpit.pp
+%endif
 
 %make_build
 
@@ -249,11 +297,13 @@ rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
 # selinux
+%if 0%{?with_selinux}
 install -D -m 644 %{name}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
 install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_session_selinux.8cockpit
 install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_ws_selinux.8cockpit
 # create this directory in the build root so that %ghost sees the desired mode
 install -d -m 700 %{buildroot}%{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
+%endif
 
 # SUSE branding
 mkdir -p %{buildroot}%{_datadir}/cockpit/branding/suse
@@ -349,14 +399,17 @@ rm -rf %{buildroot}%{python3_sitelib}/cockpit*
 for pkg in apps packagekit pcp playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
-# files from -tests
-rm -f %{buildroot}/%{pamdir}/mock-pam-conv-mod.so
-rm -f %{buildroot}/%{_unitdir}/cockpit-session.socket
-rm -f %{buildroot}/%{_unitdir}/cockpit-session@.service
 # files from -pcp
 rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
 # files from -storaged
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
+%endif
+
+%if 0%{?build_tests} == 0
+rm -rf %{buildroot}%{_datadir}/cockpit/playground
+rm -f %{buildroot}/%{pamdir}/mock-pam-conv-mod.so
+rm -f %{buildroot}/%{_unitdir}/cockpit-session.socket
+rm -f %{buildroot}/%{_unitdir}/cockpit-session@.service
 %endif
 
 sed -i "s|%{buildroot}||" *.list
@@ -498,8 +551,10 @@ Summary: Cockpit Web Service
 Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.50.0
+%if 0%{?with_selinux}
 Requires: (selinux-policy >= %{_selinux_policy_version} if selinux-policy-%{selinuxtype})
 Requires(post): (policycoreutils if selinux-policy-%{selinuxtype})
+%endif
 Conflicts: firewalld < 0.6.0-1
 Recommends: sscg >= 2.3
 Recommends: system-logos
@@ -568,10 +623,12 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-certificate-helper
 %{?suse_version:%verify(not mode) }%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
+%if 0%{?with_selinux}
 %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
 %{_mandir}/man8/%{name}_session_selinux.8cockpit.*
 %{_mandir}/man8/%{name}_ws_selinux.8cockpit.*
 %ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
+%endif
 
 %pre ws
 getent group cockpit-ws >/dev/null || groupadd -r cockpit-ws
@@ -752,6 +809,7 @@ The Cockpit component for managing storage.  This package uses udisks.
 %files -n cockpit-storaged -f storaged.list
 %{_datadir}/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
 
+%if 0%{?build_tests}
 %package -n cockpit-tests
 Summary: Tests for Cockpit
 Requires: cockpit-bridge >= %{required_base}
@@ -767,6 +825,9 @@ These files are not required for running Cockpit.
 %{pamdir}/mock-pam-conv-mod.so
 %{_unitdir}/cockpit-session.socket
 %{_unitdir}/cockpit-session@.service
+
+# /build_tests
+%endif
 
 %package devel
 Summary: Development files for for Cockpit
