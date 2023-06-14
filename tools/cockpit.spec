@@ -69,14 +69,9 @@ Patch5:         storage-btrfs.patch
 Patch101:       hide-pcp.patch
 Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 
-# Leap specific patch
-
-%if 0%{?is_smo}
-# Ensure we do not affect Micro with SLE/Leap specifi patches
-%else
+# For anything based on SLES 15 codebase (including Leap, SLE Micro)
 %if 0%{?sle_version} >= 150400 && 0%{?sle_version} <= 150700
 Patch103:       0004-leap-gnu11.patch
-%endif
 %endif
 # Experimental Python support
 %if !%{defined cockpit_enable_python}
@@ -237,10 +232,10 @@ BuildRequires:  python3-tox-current-env
 %if 0%{?is_smo}
 %patch101 -p1
 %patch102 -p1
-%else
+%endif
+# For anything based on SLES 15 codebase (including Leap, SLEM)
 %if 0%{?sle_version} >= 150400 && 0%{?sle_version} <= 150700
 %patch103 -p1
-%endif
 %endif
 
 cp %SOURCE1 tools/cockpit.pam
@@ -257,10 +252,9 @@ echo "m4_define(VERSION_NUMBER, %version)" > version.m4
 autoreconf -fvi -I tools
 #
 %configure \
-    --disable-silent-rules \
+    %{?selinux_configure_arg} \
     --with-cockpit-user=cockpit-ws \
     --with-cockpit-ws-instance-user=cockpit-wsinstance \
-    --with-selinux-config-type=etc_t \
 %if 0%{?suse_version}
     --docdir=%_defaultdocdir/%{name} \
 %endif
@@ -272,12 +266,12 @@ autoreconf -fvi -I tools
     --disable-ssh \
 %endif
 
-make -j4 %{?extra_flags} all
-
 %if 0%{?with_selinux}
-    make -f /usr/share/selinux/devel/Makefile cockpit.pp
-    bzip2 -9 cockpit.pp
+make -f /usr/share/selinux/devel/Makefile cockpit.pp
+bzip2 -9 cockpit.pp
 %endif
+
+%make_build
 
 %check
 make -j$(nproc) check
@@ -300,12 +294,13 @@ install -p -m 644 tools/cockpit.pam $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/cockpit
 rm -f %{buildroot}/%{_libdir}/cockpit/*.so
 install -D -p -m 644 AUTHORS COPYING README.md %{buildroot}%{_docdir}/cockpit/
 
+# selinux
 %if 0%{?with_selinux}
-    install -D -m 644 %{name}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
-    install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_session_selinux.8cockpit
-    install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_ws_selinux.8cockpit
-    # create this directory in the build root so that %ghost sees the desired mode
-    install -d -m 700 %{buildroot}%{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
+install -D -m 644 %{name}.pp.bz2 %{buildroot}%{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
+install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_session_selinux.8cockpit
+install -D -m 644 -t %{buildroot}%{_mandir}/man8 selinux/%{name}_ws_selinux.8cockpit
+# create this directory in the build root so that %ghost sees the desired mode
+install -d -m 700 %{buildroot}%{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
 %endif
 
 # SUSE branding
