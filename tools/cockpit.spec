@@ -113,7 +113,7 @@ Patch103:       0004-leap-gnu11.patch
 # Ship custom SELinux policy (but not for cockpit-appstream)
 # SLES / Leap 15 does not have selinux-policy. TW and SLE Micro does.
 %define with_selinux 0
-%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version} > 1500
+%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version} > 1600 || 0%{?is_smo}
 %if "%{name}" == "cockpit"
 %define selinuxtype targeted
 %define with_selinux 1
