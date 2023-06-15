@@ -70,7 +70,7 @@ Patch101:       hide-pcp.patch
 Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 
 # For anything based on SLES 15 codebase (including Leap, SLE Micro)
-%if 0%{?sle_version} >= 150400 && 0%{?sle_version} <= 150700
+%if 0%{?suse_version} == 1500
 Patch103:       0004-leap-gnu18-removal.patch
 %endif
 # Experimental Python support
@@ -117,7 +117,6 @@ Patch103:       0004-leap-gnu18-removal.patch
 %if "%{name}" == "cockpit"
 %define selinuxtype targeted
 %define with_selinux 1
-%define selinux_policy_version %(rpm --quiet -q selinux-policy && rpm -q --queryformat "%{V}-%{R}" selinux-policy || echo 1)
 %endif
 %endif
 
@@ -234,7 +233,7 @@ BuildRequires:  python3-tox-current-env
 %patch102 -p1
 %endif
 # For anything based on SLES 15 codebase (including Leap, SLEM)
-%if 0%{?sle_version} >= 150400 && 0%{?sle_version} <= 150700
+%if 0%{?suse_version} == 1500
 %patch103 -p1
 %endif
 
@@ -558,7 +557,7 @@ Requires: glib-networking
 Requires: openssl
 Requires: glib2 >= 2.50.0
 %if 0%{?with_selinux}
-Requires: (selinux-policy >= %{selinux_policy_version} if selinux-policy-%{selinuxtype})
+Requires: (selinux-policy >= %{_selinux_policy_version} if selinux-policy-%{selinuxtype})
 Requires(post): (policycoreutils if selinux-policy-%{selinuxtype})
 %endif
 Conflicts: firewalld < 0.6.0-1
@@ -676,7 +675,6 @@ if [ "$1" = 2 ]; then
     test -f $certfile && stat -c '%G' $certfile | grep -q cockpit-wsinstance && chgrp cockpit-ws $certfile
 fi
 
-%if 0%{?suse_version}
 %set_permissions %{_libexecdir}/cockpit-session
 %endif
 %tmpfiles_create cockpit-tempfiles.conf
