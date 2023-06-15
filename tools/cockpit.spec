@@ -108,7 +108,7 @@ Patch103:       0004-leap-gnu18-removal.patch
 %endif
 
 # Ship custom SELinux policy (but not for cockpit-appstream)
-%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version} > 1600 || 0%{?is_smo}
+%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version} >= 1600 || 0%{?is_smo}
 %if "%{name}" == "cockpit"
 %define selinuxtype targeted
 %define selinux_configure_arg --enable-selinux-policy=%{selinuxtype}
