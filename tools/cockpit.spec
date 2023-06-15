@@ -674,6 +674,7 @@ if [ "$1" = 2 ]; then
     test -f $certfile && stat -c '%G' $certfile | grep -q cockpit-wsinstance && chgrp cockpit-ws $certfile
 fi
 
+%if 0%{?suse_version}
 %set_permissions %{_libexecdir}/cockpit-session
 %endif
 %tmpfiles_create cockpit-tempfiles.conf
