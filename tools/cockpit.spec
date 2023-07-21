@@ -137,7 +137,18 @@ BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
 BuildRequires: make
+BuildRequires: /usr/bin/python3
 BuildRequires: python3-devel
+%if ( 0%{?rhel} && 0%{?rhel} <= 8 ) || 0%{?suse_version} <= 1500
+# RHEL 8's gettext does not yet have metainfo.its
+BuildRequires: gettext >= 0.19.7
+%if 0%{?rhel}
+BuildRequires: libappstream-glib-devel
+%else
+# Suse's package has a different name
+BuildRequires: appstream-glib-devel
+%endif
+%else
 BuildRequires: gettext >= 0.21
 BuildRequires: libssh-devel >= 0.8.5
 BuildRequires: openssl-devel
@@ -245,6 +256,7 @@ BuildRequires:  python3-tox-current-env
 
 cp %SOURCE1 tools/cockpit.pam
 #
+rm -rf node_modules package-lock.json
 local-npm-registry %{_sourcedir} install --also=dev --legacy-peer-deps
 
 %build
