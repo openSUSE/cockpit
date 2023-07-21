@@ -243,6 +243,7 @@ BuildRequires:  python3-tox-current-env
 
 cp %SOURCE1 tools/cockpit.pam
 #
+rm -rf node_modules package-lock.json
 local-npm-registry %{_sourcedir} install --also=dev --legacy-peer-deps
 
 %build
