@@ -138,6 +138,7 @@ BuildRequires: pam-devel
 
 BuildRequires: autoconf automake
 BuildRequires: make
+BuildRequires: /usr/bin/python3
 BuildRequires: python3-devel
 BuildRequires: gettext >= 0.21
 BuildRequires: openssl-devel
