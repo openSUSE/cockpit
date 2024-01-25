@@ -583,6 +583,10 @@ Requires: wallpaper-branding
 %endif
 # for cockpit-desktop
 Suggests: python3
+Provides:       group(cockpit-ws)
+Provides:       group(cockpit-wsinstance)
+Provides:       user(cockpit-ws)
+Provides:       user(cockpit-wsinstance)
 
 # prevent hard python3 dependency for cockpit-desktop, it falls back to other browsers
 %global __requires_exclude_from ^%{_libexecdir}/cockpit-client$
