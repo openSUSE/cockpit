@@ -60,12 +60,14 @@ Version:        357
 Release:        0
 Source0:        cockpit-%{version}.tar.gz
 Source2:        cockpit-rpmlintrc
+Source3:        cockpit-suse-theme.tar
+Source10:       update_version.sh
 Source99:       README.packaging
 Source98:       package-lock.json
 Source97:       node_modules.spec.inc
 %include        %{_sourcedir}/node_modules.spec.inc
 Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
-Patch2:         hide-docs.patch
+Patch2:         suse_docs.patch
 Patch3:         suse-microos-branding.patch
 Patch4:         css-overrides.patch
 Patch5:         storage-btrfs.patch
@@ -219,7 +221,7 @@ Recommends: subscription-manager-cockpit
 
 BuildRequires:  python3-devel
 BuildRequires:  python3-pip
-%if 0%{?rhel} == 0 && !0%{?suse_version}
+%if 0%{?rhel} == 0 && 0%{?suse_version} == 0
 # All of these are only required for running pytest (which we only do on Fedora)
 BuildRequires:  procps-ng
 BuildRequires:  python3-pytest-asyncio
