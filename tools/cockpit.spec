@@ -56,12 +56,13 @@ Source0:        cockpit-%{version}.tar.gz
 Source1:        cockpit.pam
 Source2:        cockpit-rpmlintrc
 Source3:        cockpit-suse-theme.tar
+Source10:       update_version.sh
 Source99:       README.packaging
 Source98:       package-lock.json
 Source97:       node_modules.spec.inc
 %include        %{_sourcedir}/node_modules.spec.inc
 Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
-Patch2:         hide-docs.patch
+Patch2:         suse_docs.patch
 Patch3:         suse-microos-branding.patch
 Patch4:         css-overrides.patch
 Patch5:         storage-btrfs.patch
@@ -115,6 +116,14 @@ Patch104:       selinux_libdir.patch
 
 %if 0%{?fedora} >= 41 || 0%{?rhel}
 ExcludeArch: %{ix86}
+%endif
+
+# pcp stopped building on ix86 in Fedora 40+, and broke hard on 39: https://bugzilla.redhat.com/show_bug.cgi?id=2284431
+%define build_pcp 1
+%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10 || 0%{?suse_version} > 1500
+%ifarch %ix86
+%define build_pcp 0
+%endif
 %endif
 
 %define enable_multihost 1
@@ -215,7 +224,7 @@ Requires: subscription-manager-cockpit
 
 BuildRequires:  python3-devel
 BuildRequires:  python3-pip
-%if 0%{?rhel} == 0 && !0%{?suse_version}
+%if 0%{?rhel} == 0 && 0%{?suse_version} == 0
 # All of these are only required for running pytest (which we only do on Fedora)
 BuildRequires:  procps-ng
 BuildRequires:  python3-pytest-asyncio
@@ -267,6 +276,7 @@ autoreconf -fvi -I tools
     --enable-multihost \
 %endif
 
+
 %if 0%{?with_selinux}
 make -f /usr/share/selinux/devel/Makefile cockpit.pp
 bzip2 -9 cockpit.pp
@@ -277,9 +287,14 @@ bzip2 -9 cockpit.pp
 %check
 make -j$(nproc) check
 
+<<<<<<< HEAD
 %if 0%{?rhel} == 0
 export NO_QUNIT=1
 %pytest
+=======
+%if 0%{?enable_old_bridge} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} == 0
+%tox
+>>>>>>> 0a988abf9 (suse docs and version update script)
 %endif
 
 %install
