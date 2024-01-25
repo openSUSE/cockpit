@@ -287,14 +287,8 @@ bzip2 -9 cockpit.pp
 %check
 make -j$(nproc) check
 
-<<<<<<< HEAD
-%if 0%{?rhel} == 0
-export NO_QUNIT=1
-%pytest
-=======
 %if 0%{?enable_old_bridge} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} == 0
 %tox
->>>>>>> 0a988abf9 (suse docs and version update script)
 %endif
 
 %install
