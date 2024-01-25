@@ -56,12 +56,13 @@ Source0:        cockpit-%{version}.tar
 Source1:        cockpit.pam
 Source2:        cockpit-rpmlintrc
 Source3:        cockpit-suse-theme.tar
+Source10:       vendor.tar.gz
 Source99:       README.packaging
 Source98:       package-lock.json
 Source97:       node_modules.spec.inc
 %include        %{_sourcedir}/node_modules.spec.inc
 Patch1:         0001-selinux-allow-login-to-read-motd-file.patch
-Patch2:         hide-docs.patch
+Patch2:         suse_docs.patch
 Patch3:         suse-microos-branding.patch
 Patch4:         css-overrides.patch
 Patch5:         storage-btrfs.patch
@@ -115,7 +116,7 @@ Patch104:       selinux_libdir.patch
 
 # pcp stopped building on ix86
 %define build_pcp 1
-%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10
+%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10 || 0%{?suse_version} > 1500
 %ifarch %ix86
 %define build_pcp 0
 %endif
@@ -228,7 +229,7 @@ Requires: subscription-manager-cockpit
 %if 0%{?enable_old_bridge} == 0
 BuildRequires:  python3-devel
 BuildRequires:  python3-pip
-%if 0%{?rhel} == 0
+%if 0%{?rhel} == 0 && 0%{?suse_version} == 0
 # All of these are only required for running pytest (which we only do on Fedora)
 BuildRequires:  procps-ng
 BuildRequires:  pyproject-rpm-macros
@@ -265,6 +266,7 @@ cp %SOURCE1 tools/cockpit.pam
 #
 rm -rf node_modules package-lock.json
 local-npm-registry %{_sourcedir} install --also=dev --legacy-peer-deps
+cd vendor; tar zxfO %SOURCE10 | tar xvi; cd ..
 
 %build
 find node_modules -name \*.node -print -delete
@@ -293,6 +295,7 @@ autoreconf -fvi -I tools
     --disable-pcp \
 %endif
 
+
 %if 0%{?with_selinux}
 make -f /usr/share/selinux/devel/Makefile cockpit.pp
 bzip2 -9 cockpit.pp
@@ -303,7 +306,7 @@ bzip2 -9 cockpit.pp
 %check
 make -j$(nproc) check
 
-%if 0%{?enable_old_bridge} == 0 && 0%{?rhel} == 0
+%if 0%{?enable_old_bridge} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} == 0
 %tox
 %endif
 
