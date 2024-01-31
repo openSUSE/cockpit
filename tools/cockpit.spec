@@ -846,6 +846,7 @@ Requires: udisks2 >= 2.9
 Requires: %{__python3}
 %if 0%{?suse_version}
 Requires: libudisks2-0_lvm2 >= 2.9
+Requires: libudisks2-0_btrfs >= 2.9
 Recommends: multipath-tools
 Requires: python3-dbus-python
 %else
