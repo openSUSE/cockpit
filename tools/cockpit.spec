@@ -101,7 +101,6 @@ Patch104:       selinux_libdir.patch
 %define build_pcp 0
 %endif
 %endif
-
 %if 0%{?suse_version} == 0 || 0%{?suse_version} > 1500
 # Ship custom SELinux policy
 %define selinuxtype targeted
@@ -250,6 +249,9 @@ autoreconf -fvi -I tools
     --with-cockpit-ws-instance-user=cockpit-wsinstance \
 %if 0%{?suse_version}
     --docdir=%_defaultdocdir/%{name} \
+    if 0%{suse_version} < 1600
+        --libexecdir=%_libexecdir
+    %endif
 %endif
     --with-pamdir='%{pamdir}' \
 %if %{build_pcp} == 0
