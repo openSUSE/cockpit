@@ -254,6 +254,7 @@ autoreconf -fvi -I tools
     %{?selinux_configure_arg} \
 %if 0%{?suse_version}
     --docdir=%_defaultdocdir/%{name} \
+    --libexecdir=%_libexecdir \
 %endif
     --with-pamdir='%{pamdir}' \
 %if %{build_pcp} == 0
