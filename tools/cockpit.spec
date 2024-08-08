@@ -304,6 +304,11 @@ cp src/fonts.css %{buildroot}%{_datadir}/cockpit/branding/suse
 cp -a src/fonts %{buildroot}%{_datadir}/cockpit/branding/suse
 popd
 
+%if 0%{?suse_version} == 1500
+sed -i -e 's#"/lib/systemd/system#"%{_unitdir}#' \
+  %{buildroot}%{_datadir}/cockpit/packagekit/manifest.json
+%endif
+
 # Build the package lists for resource packages
 # cockpit-bridge is the basic dependency for all cockpit-* packages, so centrally own the page directory
 echo '%dir %{_datadir}/cockpit' > base.list
