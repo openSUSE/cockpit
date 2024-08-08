@@ -204,7 +204,7 @@ Requires: cockpit-system
 
 # Optional components
 Recommends: (cockpit-storaged if udisks2)
-Recommends: (cockpit-packagekit if dnf)
+Recommends: (cockpit-packagekit if (dnf or zypper))
 %if 0%{?suse_version} == 0
 Recommends: (dnf5daemon-server if dnf5)
 %endif
