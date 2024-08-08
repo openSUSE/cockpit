@@ -72,6 +72,7 @@ Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 # For anything based on SLES 15 codebase (including Leap, SLE Micro)
 Patch103:       0004-leap-gnu18-removal.patch
 Patch104:       selinux_libdir.patch
+Patch105:       fix-libexecdir.patch
 
 %define build_all 1
 %if 0%{?rhel} == 8 && 0%{?epel} == 0 && !0%{?build_all}
@@ -235,6 +236,7 @@ BuildRequires:  python3-tox-current-env
 %if 0%{?suse_version} == 1500
 %patch -P 103 -p1
 %patch -P 104 -p0
+%patch -P 105 -p1
 %endif
 
 cp %SOURCE1 tools/cockpit.pam
