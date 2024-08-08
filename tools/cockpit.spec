@@ -191,7 +191,7 @@ Requires: cockpit-system
 
 # Optional components
 Recommends: (cockpit-storaged if udisks2)
-Recommends: (cockpit-packagekit if dnf)
+Recommends: (cockpit-packagekit if (dnf or zypper))
 Suggests: cockpit-pcp
 
 %if 0%{?rhel} == 0
