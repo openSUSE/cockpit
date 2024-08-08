@@ -72,6 +72,7 @@ Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 # For anything based on SLES 15 codebase (including Leap, SLE Micro)
 Patch103:       0004-leap-gnu18-removal.patch
 Patch104:       selinux_libdir.patch
+Patch105:       fix-libexecdir.patch
 
 %if 0%{?fedora} >= 38 || 0%{?rhel} >= 9
 %define cockpit_enable_python 1
@@ -231,8 +232,9 @@ BuildRequires:  python3-pytest-timeout
 %endif
 # For anything based on SLES 15 codebase (including Leap, SLEM)
 %if 0%{?suse_version} == 1500
-%patch103 -p1
-%patch104 -p0
+%patch -P 103 -p1
+%patch -P 104 -p0
+%patch -P 105 -p1
 %endif
 
 cp %SOURCE1 tools/cockpit.pam
