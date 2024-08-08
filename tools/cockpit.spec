@@ -189,8 +189,8 @@ Requires: cockpit-system
 
 # Optional components
 Recommends: (cockpit-storaged if udisks2)
-Recommends: (cockpit-packagekit if dnf)
-Suggests: python3-pcp
+Recommends: (cockpit-packagekit if (dnf or zypper))
+Suggests: cockpit-pcp
 
 %if 0%{?rhel} == 0
 Recommends: (cockpit-networkmanager if NetworkManager)
