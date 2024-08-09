@@ -567,6 +567,7 @@ Suggests: sssd-dbus >= 2.6.2
 Requires(pre): permissions
 Requires: distribution-logos
 Requires: pam_oath
+Requires: pam_u2f
 Requires: wallpaper-branding
 %endif
 # for cockpit-desktop
