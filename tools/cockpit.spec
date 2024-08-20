@@ -73,6 +73,7 @@ Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 Patch103:       0004-leap-gnu18-removal.patch
 Patch104:       selinux_libdir.patch
 Patch105:       fix-libexecdir.patch
+Patch106:       0005-cockpit-ws-user-remove-default-deps.patch
 
 %define build_all 1
 %if 0%{?rhel} == 8 && 0%{?epel} == 0 && !0%{?build_all}
@@ -228,6 +229,7 @@ BuildRequires:  python3-tox-current-env
 %patch -P 3 -p1
 %patch -P 4 -p1
 %patch -P 5 -p1
+%patch -P 106 -p1
 
 # SLE Micro specific patches
 %if 0%{?is_smo}
