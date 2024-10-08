@@ -75,6 +75,8 @@ Patch104:       selinux_libdir.patch
 Patch105:       fix-libexecdir.patch
 Patch106:       0005-cockpit-ws-user-remove-default-deps.patch
 
+Patch201:       remove_rh_links.patch
+
 %define build_all 1
 %if 0%{?rhel} == 8 && 0%{?epel} == 0 && !0%{?build_all}
 
@@ -245,6 +247,8 @@ BuildRequires:  python3-tox-current-env
 %patch -P 104 -p0
 %patch -P 105 -p1
 %endif
+
+%patch -P 201 -p1
 
 cp %SOURCE1 tools/cockpit.pam
 #
@@ -429,13 +433,13 @@ sed -i "s|%{buildroot}||" *.list
 # remove brandings with stale symlinks. Means they don't match
 # the distro.
 pushd %{buildroot}/%{_datadir}/cockpit/branding
-ls --hide={default,kubernetes,opensuse,registry,sle-micro,suse} | xargs rm -rv
+ls --hide={default,kubernetes,opensuse,registry,suse} | xargs rm -rv
 popd
 # need this in SUSE as post build checks dislike stale symlinks
 install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
 test -e %{buildroot}/usr/share/cockpit/branding/opensuse/default-1920x1200.jpg  || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/opensuse/default-1920x1200.jpg
-test -e %{buildroot}/usr/share/cockpit/branding/sle-micro/apple-touch-icon.png  || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/sle-micro/apple-touch-icon.png
-test -e %{buildroot}/usr/share/cockpit/branding/sle-micro/default-1920x1200.png || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/sle-micro/default-1920x1200.png
+test -e %{buildroot}/usr/share/cockpit/branding/suse/apple-touch-icon.png  || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/suse/apple-touch-icon.png
+test -e %{buildroot}/usr/share/cockpit/branding/suse/default-1920x1200.png || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/suse/default-1920x1200.png
 # remove files of not installable packages
 rm -r %{buildroot}%{_datadir}/cockpit/sosreport
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-sosreport.metainfo.xml
