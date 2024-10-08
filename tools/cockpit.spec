@@ -76,6 +76,7 @@ Patch5:         storage-btrfs.patch
 # SLE Micro specific patches
 Patch101:       hide-pcp.patch
 Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
+Patch107:       0006-totp-motd.patch
 # For anything based on SLES 15 codebase (including Leap, SLE Micro)
 Patch103:       0004-leap-gnu18-removal.patch
 Patch104:       selinux_libdir.patch
@@ -219,13 +220,14 @@ BuildRequires:  python3-pytest-timeout
 %endif
 
 %prep
-%setup -q -n cockpit-%{version}
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
+%setup -q -n cockpit-%{version} -a 3
+%patch -P 1 -p1
+%patch -P 2 -p1
+%patch -P 3 -p1
+%patch -P 4 -p1
+%patch -P 5 -p1
+%patch -P 106 -p1
+%patch -P 107 -p1
 
 # SLE Micro specific patches
 %if 0%{?is_smo}
@@ -491,6 +493,7 @@ Requires: cockpit-bridge >= %{version}-%{release}
 Requires: shadow-utils
 %endif
 Requires: grep
+Requires: jeos-firstboot
 Requires: /usr/bin/pwscore
 Requires: /usr/bin/date
 Provides: cockpit-shell = %{version}-%{release}
