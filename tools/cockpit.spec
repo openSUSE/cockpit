@@ -82,20 +82,8 @@ Patch103:       0004-leap-gnu18-removal.patch
 Patch104:       selinux_libdir.patch
 Patch105:       fix-libexecdir.patch
 
-%if 0%{?fedora} >= 38 || 0%{?rhel} >= 9
-%define cockpit_enable_python 1
-%endif
+Patch201:       remove_rh_links.patch
 
-# Experimental Python support
-%if !%{defined cockpit_enable_python}
-%define cockpit_enable_python 0
-%endif
-
-# in RHEL 8 the source package is duplicated: cockpit (building basic packages like cockpit-{bridge,system})
-# and cockpit-appstream (building optional packages like cockpit-{pcp})
-# This split does not apply to EPEL/COPR nor packit c8s builds, only to our own
-# image-prepare rhel-8-Y builds (which will disable build_all).
-# In Fedora ELN/RHEL 9+ there is just one source package, which ships rpms in both BaseOS and AppStream
 %define build_all 1
 %if 0%{?rhel} == 8 && 0%{?epel} == 0 && !0%{?build_all}
 
@@ -243,6 +231,8 @@ BuildRequires:  python3-pytest-timeout
 %patch -P 104 -p0
 %patch -P 105 -p1
 %endif
+
+%patch -P 201 -p1
 
 #
 local-npm-registry %{_sourcedir} install --include=dev --ignore-scripts
@@ -407,6 +397,10 @@ rm -f %{buildroot}/%{_unitdir}/cockpit-session@.service
 sed -i "s|%{buildroot}||" *.list
 
 %if 0%{?suse_version}
+test -e %{buildroot}/usr/share/cockpit/branding/opensuse/default-1920x1200.jpg  || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/opensuse/default-1920x1200.jpg
+test -e %{buildroot}/usr/share/cockpit/branding/suse/apple-touch-icon.png  || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/suse/apple-touch-icon.png
+test -e %{buildroot}/usr/share/cockpit/branding/suse/default-1920x1200.png || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/suse/default-1920x1200.png
+
 # remove files of not installable packages
 rm -r %{buildroot}%{_datadir}/cockpit/sosreport
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit_project.cockpit_sosreport.metainfo.xml
