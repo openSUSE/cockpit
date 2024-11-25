@@ -1,32 +1,22 @@
 #
+# spec file for package cockpit
+#
+# Copyright (c) 2024 SUSE LLC
 # Copyright (C) 2014-2020 Red Hat, Inc.
 #
-# Cockpit is free software; you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation; either version 2.1 of the License, or
-# (at your option) any later version.
-#
-# Cockpit is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with Cockpit; If not, see <https://www.gnu.org/licenses/>.
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
-#
-# This file is maintained at the following location:
-# https://github.com/cockpit-project/cockpit/blob/main/tools/cockpit.spec
-#
-# If you are editing this file in another location, changes will likely
-# be clobbered the next time an automated release is done.
-#
-# Check first cockpit-devel@lists.fedorahosted.org
-#
 
-# earliest base that the subpackages work on; this is still required as long as
-# we maintain the basic/optional split, then it can be replaced with just %{version}.
 %define required_base 266
 
 # we generally want CentOS packages to be like RHEL; special cases need to check %{centos} explicitly
@@ -105,15 +95,7 @@ Patch201:       remove_rh_links.patch
 %endif
 
 %if 0%{?fedora} >= 41 || 0%{?rhel}
-ExcludeArch: %{ix86}
-%endif
-
-# pcp stopped building on ix86 in Fedora 40+, and broke hard on 39: https://bugzilla.redhat.com/show_bug.cgi?id=2284431
-%define build_pcp 1
-%if 0%{?fedora} >= 40 || 0%{?rhel} >= 10 || 0%{?suse_version} > 1500
-%ifarch %ix86
-%define build_pcp 0
-%endif
+ExcludeArch:    %{ix86}
 %endif
 
 %define enable_multihost 1
@@ -130,54 +112,55 @@ ExcludeArch: %{ix86}
 %endif
 %endif
 
-BuildRequires: gcc
-BuildRequires: pkgconfig(gio-unix-2.0)
-BuildRequires: pkgconfig(json-glib-1.0)
-BuildRequires: pkgconfig(polkit-agent-1) >= 0.105
-BuildRequires: pam-devel
+BuildRequires:  gcc
+BuildRequires:  pam-devel
+BuildRequires:  pkgconfig(gio-unix-2.0)
+BuildRequires:  pkgconfig(json-glib-1.0)
+BuildRequires:  pkgconfig(polkit-agent-1) >= 0.105
 
-BuildRequires: autoconf automake
-BuildRequires: make
-BuildRequires: /usr/bin/python3
-BuildRequires: python3-devel
+BuildRequires:  /usr/bin/python3
+BuildRequires:  autoconf
+BuildRequires:  automake
+BuildRequires:  make
+BuildRequires:  python3-devel
 %if ( 0%{?rhel} && 0%{?rhel} <= 8 ) || 0%{?suse_version} <= 1500
 # RHEL 8's gettext does not yet have metainfo.its
-BuildRequires: gettext >= 0.19.7
+BuildRequires:  gettext >= 0.19.7
 %if 0%{?rhel}
-BuildRequires: libappstream-glib-devel
+BuildRequires:  libappstream-glib-devel
 %else
 # Suse's package has a different name
-BuildRequires: appstream-glib-devel
+BuildRequires:  appstream-glib-devel
 %endif
 %else
-BuildRequires: gettext >= 0.21
-BuildRequires: openssl-devel
-BuildRequires: gnutls-devel >= 3.4.3
-BuildRequires: zlib-devel
-BuildRequires: pkgconfig(krb5) >= 1.11
-BuildRequires: libxslt-devel
-BuildRequires: glib-networking
-BuildRequires: sed
-
-BuildRequires: glib2-devel >= 2.50.0
+BuildRequires:  gettext >= 0.21
+BuildRequires:  glib-networking
+BuildRequires:  gnutls-devel >= 3.4.3
+BuildRequires:  libxslt-devel
+BuildRequires:  openssl-devel
+BuildRequires:  sed
+BuildRequires:  zlib-devel
+BuildRequires:  pkgconfig(krb5) >= 1.11
+%endif
+BuildRequires:  glib2-devel >= 2.50.0
 # this is for runtimedir in the tls proxy ace21c8879
-BuildRequires: pkgconfig(libsystemd) >= 235
+BuildRequires:  pkgconfig(libsystemd) >= 235
 %if 0%{?suse_version}
-BuildRequires: distribution-release
-BuildRequires: openssh
-BuildRequires: distribution-logos
-BuildRequires: wallpaper-branding
+BuildRequires:  distribution-logos
+BuildRequires:  distribution-release
+BuildRequires:  openssh
+BuildRequires:  wallpaper-branding
 # needed for /var/lib/pcp directory ownership
-BuildRequires: pcp
+BuildRequires:  pcp
 %else
-BuildRequires: openssh-clients
-BuildRequires: docbook-style-xsl
+BuildRequires:  docbook-style-xsl
+BuildRequires:  openssh-clients
 %endif
-BuildRequires: krb5-server
-BuildRequires: gdb
+BuildRequires:  gdb
+BuildRequires:  krb5-server
 
 # For documentation
-BuildRequires: xmlto
+BuildRequires:  xmlto
 
 %if 0%{?with_selinux}
 BuildRequires:  selinux-policy
@@ -186,30 +169,30 @@ BuildRequires:  selinux-policy-devel
 %endif
 
 # for rebuilding nodejs bits
-BuildRequires: npm
-BuildRequires: sassc
-BuildRequires: local-npm-registry
+BuildRequires:  npm
+BuildRequires:  local-npm-registry
+BuildRequires:  sassc
 
 # This is the "cockpit" metapackage. It should only
 # Require, Suggest or Recommend other cockpit-xxx subpackages
 
-Requires: cockpit-bridge
-Requires: cockpit-ws
-Requires: cockpit-system
+Requires:       cockpit-bridge
+Requires:       cockpit-system
+Requires:       cockpit-ws
 
 # Optional components
-Recommends: (cockpit-storaged if udisks2)
-Recommends: (cockpit-packagekit if (dnf or zypper))
-Suggests: python3-pcp
+Recommends:     (cockpit-storaged if udisks2)
+Recommends:     (cockpit-packagekit if (dnf or zypper))
+Suggests:       python3-pcp
 
 %if 0%{?rhel} == 0
-Recommends: (cockpit-networkmanager if NetworkManager)
+Recommends:     (cockpit-networkmanager if NetworkManager)
 # c-ostree is not in RHEL 8/9
-Recommends: (cockpit-ostree if rpm-ostree)
-Suggests: cockpit-selinux
+Recommends:     (cockpit-ostree if rpm-ostree)
+Suggests:       cockpit-selinux
 %endif
 %if 0%{?rhel} && 0%{?centos} == 0
-Requires: subscription-manager-cockpit
+Requires:       subscription-manager-cockpit
 %endif
 
 BuildRequires:  python3-devel
@@ -228,9 +211,7 @@ BuildRequires:  python3-pytest-timeout
 %patch -P 3 -p1
 %patch -P 4 -p1
 %patch -P 5 -p1
-%patch -P 106 -p1
 %patch -P 107 -p1
-
 
 # SLE Micro specific patches
 %if 0%{?is_smo}
@@ -272,7 +253,6 @@ autoreconf -fvi -I tools
 %if %{enable_multihost}
     --enable-multihost \
 %endif
-
 
 %if 0%{?with_selinux}
 make -f /usr/share/selinux/devel/Makefile cockpit.pp
@@ -318,12 +298,6 @@ cp src/css-overrides.css %{buildroot}%{_datadir}/cockpit/branding/suse
 cp src/fonts.css %{buildroot}%{_datadir}/cockpit/branding/suse
 cp -a src/fonts %{buildroot}%{_datadir}/cockpit/branding/suse
 popd
-
-%if 0%{?suse_version} == 1500
-sed -i -e 's#"/lib/systemd/system#"%{_unitdir}#' \
-  %{buildroot}%{_datadir}/cockpit/packagekit/manifest.json \
-  %{buildroot}%{_datadir}/cockpit/pcp/manifest.json
-%endif
 
 # Build the package lists for resource packages
 # cockpit-bridge is the basic dependency for all cockpit-* packages, so centrally own the page directory
@@ -399,11 +373,9 @@ rm -rf %{buildroot}%{python3_sitelib}/cockpit*
 
 # when not building optional packages, remove their files
 %if 0%{?build_optional} == 0
-for pkg in apps packagekit pcp playground storaged; do
+for pkg in apps packagekit playground storaged; do
     rm -rf %{buildroot}/%{_datadir}/cockpit/$pkg
 done
-# files from -pcp
-rm -r %{buildroot}/%{_libexecdir}/cockpit-pcp %{buildroot}/%{_localstatedir}/lib/pcp/
 # files from -storaged
 rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storaged.metainfo.xml
 %endif
@@ -475,9 +447,17 @@ troubleshooting, interactive command-line sessions, and more.
 %{_datadir}/icons/hicolor/128x128/apps/cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz
 
-
 %package bridge
-Summary: Cockpit bridge server-side component
+Summary:        Cockpit bridge server-side component
+Requires:       glib-networking
+# 233 dropped jquery.js, pages started to bundle it (commit 049e8b8dce)
+Conflicts:      cockpit-dashboard < 233
+Conflicts:      cockpit-docker < 233
+Conflicts:      cockpit-networkmanager < 233
+Conflicts:      cockpit-storaged < 233
+Conflicts:      cockpit-system < 233
+Conflicts:      cockpit-tests < 233
+Obsoletes:      cockpit-pcp
 
 %description bridge
 The Cockpit bridge component installed server side and runs commands on the
@@ -490,8 +470,8 @@ system on behalf of the web based user interface.
 %{python3_sitelib}/%{name}*
 
 %package doc
-Summary: Cockpit deployment and developer guide
-BuildArch: noarch
+Summary:        Cockpit deployment and developer guide
+BuildArch:      noarch
 
 %description doc
 The Cockpit Deployment and Developer Guide shows sysadmins how to
@@ -505,36 +485,36 @@ embed or extend Cockpit.
 %{_docdir}/cockpit
 
 %package system
-Summary: Cockpit admin interface package for configuring and troubleshooting a system
-BuildArch: noarch
-Requires: cockpit-bridge >= %{version}-%{release}
+Summary:        Cockpit admin interface package for configuring and troubleshooting a system
+BuildArch:      noarch
+Requires:       cockpit-bridge >= %{version}-%{release}
 %if !0%{?suse_version}
-Requires: shadow-utils
+Requires:       shadow-utils
 %endif
-Requires: grep
-Requires: jeos-firstboot
-Requires: /usr/bin/pwscore
-Requires: /usr/bin/date
-Provides: cockpit-shell = %{version}-%{release}
-Provides: cockpit-systemd = %{version}-%{release}
-Provides: cockpit-tuned = %{version}-%{release}
-Provides: cockpit-users = %{version}-%{release}
+Requires:       grep
+Requires:       jeos-firstboot
+Requires:       /usr/bin/pwscore
+Requires:       /usr/bin/date
+Provides:       cockpit-shell = %{version}-%{release}
+Provides:       cockpit-systemd = %{version}-%{release}
+Provides:       cockpit-tuned = %{version}-%{release}
+Provides:       cockpit-users = %{version}-%{release}
 %if 0%{?rhel}
-Requires: NetworkManager >= 1.6
-Requires: sos
-Requires: sudo
-Recommends: PackageKit
-Recommends: setroubleshoot-server >= 3.3.3
-Recommends: /usr/bin/kdumpctl
-Suggests: NetworkManager-team
-Suggests: python3-pcp
-Provides: cockpit-kdump = %{version}-%{release}
-Provides: cockpit-networkmanager = %{version}-%{release}
-Provides: cockpit-selinux = %{version}-%{release}
-Provides: cockpit-sosreport = %{version}-%{release}
+Requires:       NetworkManager >= 1.6
+Requires:       sos
+Requires:       sudo
+Recommends:     /usr/bin/kdumpctl
+Recommends:     PackageKit
+Recommends:     setroubleshoot-server >= 3.3.3
+Suggests:       NetworkManager-team
+Suggests:       python3-pcp
+Provides:       cockpit-kdump = %{version}-%{release}
+Provides:       cockpit-networkmanager = %{version}-%{release}
+Provides:       cockpit-selinux = %{version}-%{release}
+Provides:       cockpit-sosreport = %{version}-%{release}
 %endif
 %if 0%{?fedora}
-Recommends: (reportd if abrt)
+Recommends:     (reportd if abrt)
 %endif
 
 #NPM_PROVIDES
@@ -546,23 +526,23 @@ This package contains the Cockpit shell and system configuration interfaces.
 %dir %{_datadir}/cockpit/shell/images
 
 %package ws
-Summary: Cockpit Web Service
-Requires: glib-networking
-Requires: openssl
-Requires: glib2 >= 2.50.0
+Summary:        Cockpit Web Service
+Requires:       glib-networking
+Requires:       glib2 >= 2.50.0
+Requires:       openssl
 %if 0%{?with_selinux}
-Requires: (selinux-policy >= %{_selinux_policy_version} if selinux-policy-%{selinuxtype})
+Requires:       (selinux-policy >= %{_selinux_policy_version} if selinux-policy-%{selinuxtype})
 Requires(post): (policycoreutils if selinux-policy-%{selinuxtype})
 %endif
-Conflicts: firewalld < 0.6.0-1
-Recommends: sscg >= 2.3
-Recommends: system-logos
-Suggests: sssd-dbus
+Conflicts:      firewalld < 0.6.0-1
+Recommends:     sscg >= 2.3
+Recommends:     system-logos
+Suggests:       sssd-dbus
 %if 0%{?suse_version}
-Requires(pre): permissions
-Requires: distribution-logos
-Requires: pam_oath
-Requires: wallpaper-branding
+Requires(pre):  permissions
+Requires:       distribution-logos
+Requires:       pam_oath
+Requires:       wallpaper-branding
 %endif
 # for cockpit-desktop
 Suggests: python3
@@ -727,11 +707,11 @@ done
 %if 0%{?rhel} == 0
 
 %package kdump
-Summary: Cockpit user interface for kernel crash dumping
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
-Requires: /usr/bin/kdumpctl
-BuildArch: noarch
+Summary:        Cockpit user interface for kernel crash dumping
+Requires:       /usr/bin/kdumpctl
+Requires:       cockpit-bridge >= %{required_base}
+Requires:       cockpit-shell >= %{required_base}
+BuildArch:      noarch
 
 %description kdump
 The Cockpit component for configuring kernel crash dumping.
@@ -741,11 +721,11 @@ The Cockpit component for configuring kernel crash dumping.
 
 %if !0%{?suse_version}
 %package sosreport
-Summary: Cockpit user interface for diagnostic reports
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
-Requires: sos
-BuildArch: noarch
+Summary:        Cockpit user interface for diagnostic reports
+Requires:       cockpit-bridge >= %{required_base}
+Requires:       cockpit-shell >= %{required_base}
+Requires:       sos
+BuildArch:      noarch
 
 %description sosreport
 The Cockpit component for creating diagnostic reports with the
@@ -757,14 +737,14 @@ sosreport tool.
 %endif
 
 %package networkmanager
-Summary: Cockpit user interface for networking, using NetworkManager
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
-Requires: NetworkManager >= 1.6
-Conflicts: cockpit-wicked
+Summary:        Cockpit user interface for networking, using NetworkManager
+Requires:       NetworkManager >= 1.6
+Requires:       cockpit-bridge >= %{required_base}
+Requires:       cockpit-shell >= %{required_base}
+Conflicts:      cockpit-wicked
 # Optional components
-Recommends: NetworkManager-team
-BuildArch: noarch
+Recommends:     NetworkManager-team
+BuildArch:      noarch
 
 %description networkmanager
 The Cockpit component for managing networking.  This package uses NetworkManager.
@@ -777,9 +757,9 @@ The Cockpit component for managing networking.  This package uses NetworkManager
 %if 0%{?rhel} == 0 && ( 0%{?suse_version} >= 1500 || 0%{?is_smo} )
 
 %package selinux
-Summary: Cockpit SELinux package
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-shell >= %{required_base}
+Summary:        Cockpit SELinux package
+Requires:       cockpit-bridge >= %{required_base}
+Requires:       cockpit-shell >= %{required_base}
 Requires:       policycoreutils-python-utils >= 3.1
 # setroubleshoot is available on SLE Micro starting with 5.5)
 %if !0%{?is_smo}  || ( 0%{?is_smo} && 0%{?sle_version} >= 150500 )
@@ -797,25 +777,25 @@ utility setroubleshoot to diagnose and resolve SELinux issues.
 %endif
 
 %package -n cockpit-storaged
-Summary: Cockpit user interface for storage, using udisks
-Requires: cockpit-shell >= %{required_base}
-Requires: udisks2 >= 2.9
-Requires: %{__python3}
+Summary:        Cockpit user interface for storage, using udisks
+Requires:       %{__python3}
+Requires:       cockpit-shell >= %{required_base}
+Requires:       udisks2 >= 2.9
 %if 0%{?suse_version}
-Requires: libudisks2-0_lvm2 >= 2.9
-Recommends: multipath-tools
-Requires: python3-dbus-python
+Requires:       libudisks2-0_lvm2 >= 2.9
+Recommends:     multipath-tools
+Requires:       python3-dbus-python
 %else
-Recommends: udisks2-lvm2 >= 2.9
-Recommends: udisks2-iscsi >= 2.9
+Recommends:     udisks2-iscsi >= 2.9
+Recommends:     udisks2-lvm2 >= 2.9
 %if ! 0%{?rhel}
-Recommends: udisks2-btrfs >= 2.9
+Recommends:     udisks2-btrfs >= 2.9
 %endif
-Recommends: device-mapper-multipath
-Recommends: clevis-luks
-Requires: python3-dbus
+Recommends:     clevis-luks
+Recommends:     device-mapper-multipath
+Requires:       python3-dbus
 %endif
-BuildArch: noarch
+BuildArch:      noarch
 
 %description -n cockpit-storaged
 The Cockpit component for managing storage.  This package uses udisks.
@@ -825,11 +805,11 @@ The Cockpit component for managing storage.  This package uses udisks.
 
 %if 0%{?build_tests}
 %package -n cockpit-tests
-Summary: Tests for Cockpit
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-system >= %{required_base}
-Requires: openssh-clients
-Provides: cockpit-test-assets = %{version}-%{release}
+Summary:        Tests for Cockpit
+Requires:       cockpit-bridge >= %{required_base}
+Requires:       cockpit-system >= %{required_base}
+Requires:       openssh-clients
+Provides:       cockpit-test-assets = %{version}-%{release}
 
 # /build_tests
 %endif
@@ -841,7 +821,7 @@ if [ "$1" = 2 ] && [ -d /var/lib/cockpit/btrfs ]; then
 fi
 
 %package devel
-Summary: Development files for for Cockpit
+Summary:        Development files for for Cockpit
 
 %description devel
 This package contains files used to develop cockpit modules
@@ -849,32 +829,14 @@ This package contains files used to develop cockpit modules
 %files devel
 %{_datadir}/cockpit/devel
 
-%if %{build_pcp}
-%package -n cockpit-pcp
-Summary: Cockpit PCP integration
-Requires: cockpit-bridge >= %{required_base}
-Requires: pcp
-
-%description -n cockpit-pcp
-Cockpit support for reading PCP metrics and loading PCP archives.
-
-%files -n cockpit-pcp -f pcp.list
-%{_libexecdir}/cockpit-pcp
-%{_localstatedir}/lib/pcp/config/pmlogconf/tools/cockpit
-
-%post -n cockpit-pcp
-systemctl reload-or-try-restart pmlogger
-
-%endif
-
 %package -n cockpit-packagekit
-Summary: Cockpit user interface for packages
-BuildArch: noarch
-Requires: cockpit-bridge >= %{required_base}
-Requires: PackageKit
-Recommends: python3-tracer
+Summary:        Cockpit user interface for packages
+BuildArch:      noarch
+Requires:       PackageKit
+Requires:       cockpit-bridge >= %{required_base}
+Recommends:     python3-tracer
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1800468
-Requires: polkit
+Requires:       polkit
 
 %description -n cockpit-packagekit
 The Cockpit components for installing OS updates and Cockpit add-ons,
@@ -882,5 +844,4 @@ via PackageKit.
 
 %files -n cockpit-packagekit -f packagekit.list
 
-# The changelog is automatically generated and merged
 %changelog
