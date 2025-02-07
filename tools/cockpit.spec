@@ -77,6 +77,7 @@ Patch5:         storage-btrfs.patch
 Patch101:       hide-pcp.patch
 Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 Patch107:       0006-totp-motd.patch
+Patch108:       0007-Remove-DynamicUser-setting-as-these-conflict-with-re.patch
 # For anything based on SLES 15 codebase (including Leap, SLE Micro)
 Patch103:       0004-leap-gnu18-removal.patch
 Patch104:       selinux_libdir.patch
@@ -232,6 +233,7 @@ BuildRequires:  python3-pytest-timeout
 %patch -P 103 -p1
 %patch -P 104 -p1
 %patch -P 105 -p1
+%patch -P 108 -p1
 %endif
 
 %patch -P 201 -p1
