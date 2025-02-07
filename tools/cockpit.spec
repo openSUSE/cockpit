@@ -407,7 +407,7 @@ pushd %{buildroot}/%{_datadir}/cockpit/branding
 ls --hide={default,kubernetes,opensuse,registry,suse} | xargs rm -rv
 popd
 # need this in SUSE as post build checks dislike stale symlinks
-install -m 644 -D /dev/null %{buildroot}/run/cockpit/motd
+install -m 644 -D /dev/null %{buildroot}/run/cockpit/issue
 
 test -e %{buildroot}/usr/share/cockpit/branding/opensuse/default-1920x1200.jpg  || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/opensuse/default-1920x1200.jpg
 test -e %{buildroot}/usr/share/cockpit/branding/suse/apple-touch-icon.png  || install -m 644 -D /dev/null %{buildroot}/usr/share/cockpit/branding/suse/apple-touch-icon.png
@@ -615,7 +615,7 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-desktop
 %{_libexecdir}/cockpit-certificate-ensure
 %{_libexecdir}/cockpit-certificate-helper
-%{?suse_version:%verify(not mode) }%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
+%{?suse_version:%verify(not mode) }%attr(4750, root, cockpit-wsinstance-socket) %{_libexecdir}/cockpit-session
 %{_datadir}/cockpit/branding
 %if 0%{?with_selinux}
 %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
