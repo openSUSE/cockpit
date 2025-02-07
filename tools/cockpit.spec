@@ -556,6 +556,13 @@ Requires: wallpaper-branding
 # for cockpit-desktop
 Suggests: python3
 Obsoletes: cockpit-tests < 331
+%if 0%{?suse_version} == 1500
+Provides:       group(cockpit-wsinstance-socket)
+Provides:       group(cockpit-session-socket)
+Provides:       user(cockpit-wsinstance-socket)
+Provides:       user(cockpit-session-socket)
+Provides:       user(cockpit-systemd-service)
+%endif
 
 # prevent hard python3 dependency for cockpit-desktop, it falls back to other browsers
 %global __requires_exclude_from ^%{_libexecdir}/cockpit-client$
