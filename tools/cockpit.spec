@@ -361,7 +361,6 @@ for data in doc man pixmaps polkit-1; do
     rm -r %{buildroot}/%{_datadir}/$data
 done
 rm -r %{buildroot}/%{_prefix}/%{__lib}/tmpfiles.d
-find %{buildroot}/%{_unitdir}/ -type f ! -name 'cockpit-session*' -delete
 for libexec in cockpit-askpass cockpit-session cockpit-ws cockpit-tls cockpit-wsinstance-factory cockpit-client cockpit-client.ui cockpit-desktop cockpit-certificate-helper cockpit-certificate-ensure; do
     rm -f %{buildroot}/%{_libexecdir}/$libexec
 done
@@ -390,8 +389,6 @@ rm -f %{buildroot}/%{_prefix}/share/metainfo/org.cockpit-project.cockpit-storage
 %if 0%{?build_tests} == 0
 rm -rf %{buildroot}%{_datadir}/cockpit/playground
 rm -f %{buildroot}/%{pamdir}/mock-pam-conv-mod.so
-rm -f %{buildroot}/%{_unitdir}/cockpit-session.socket
-rm -f %{buildroot}/%{_unitdir}/cockpit-session@.service
 %endif
 
 sed -i "s|%{buildroot}||" *.list
@@ -507,6 +504,10 @@ Provides: cockpit-kdump = %{version}-%{release}
 Provides: cockpit-networkmanager = %{version}-%{release}
 Provides: cockpit-selinux = %{version}-%{release}
 Provides: cockpit-sosreport = %{version}-%{release}
+%endif
+Obsoletes: cockpit-tests <  %{version}
+%if 0%{?fedora}
+Recommends: (reportd if abrt)
 %endif
 
 #NPM_PROVIDES
@@ -828,17 +829,6 @@ The Cockpit component for managing storage.  This package uses udisks.
 %files -n cockpit-storaged -f storaged.list
 %license COPYING
 %{_datadir}/metainfo/org.cockpit_project.cockpit_storaged.metainfo.xml
-
-%if 0%{?build_tests}
-%package -n cockpit-tests
-Summary: Tests for Cockpit
-Requires: cockpit-bridge >= %{required_base}
-Requires: cockpit-system >= %{required_base}
-Requires: openssh-clients
-Provides: cockpit-test-assets = %{version}-%{release}
-
-# /build_tests
-%endif
 
 %post storaged
 # version 332 moved the btrfs temp mounts db to /run
