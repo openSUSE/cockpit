@@ -231,7 +231,9 @@ BuildRequires:  python3-pytest-timeout
 
 %patch -P 201 -p1
 
+%if 0%{?suse_version} > 1500
 cp %SOURCE1 tools/cockpit.pam
+%endif
 #
 local-npm-registry %{_sourcedir} install --include=dev --ignore-scripts
 
@@ -542,7 +544,9 @@ Suggests: sssd-dbus
 %if 0%{?suse_version}
 Requires(pre): permissions
 Requires: distribution-logos
+%if 0%{?suse_version} > 1500
 Requires: pam_oath >= 2.6.11.12
+%endif
 Requires: wallpaper-branding
 %endif
 # for cockpit-desktop
