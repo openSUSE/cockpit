@@ -535,7 +535,7 @@ Suggests: sssd-dbus
 %if 0%{?suse_version}
 Requires(pre): permissions
 Requires: distribution-logos
-Requires: pam_oath
+Requires: pam_oath >= 2.6.11.12
 Requires: wallpaper-branding
 %endif
 # for cockpit-desktop
