@@ -613,7 +613,12 @@ authentication via sssd/FreeIPA.
 %{_libexecdir}/cockpit-desktop
 %{_libexecdir}/cockpit-certificate-ensure
 %{_libexecdir}/cockpit-certificate-helper
-%{?suse_version:%verify(not mode) }%attr(4750, root, cockpit-wsinstance) %{_libexecdir}/cockpit-session
+%if 0%{?suse_version} == 1500
+%{?suse_version:%verify(not mode) }%attr(4750, root, cockpit-wsinstance-socket) %{_libexecdir}/cockpit-session
+%else
+%{_libexecdir}/check_cockpit_users
+%{_libexecdir}/cockpit-session
+%endif
 %{_datadir}/cockpit/branding
 
 %pre ws
