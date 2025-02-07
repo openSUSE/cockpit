@@ -70,6 +70,7 @@ Patch5:         storage-btrfs.patch
 Patch101:       hide-pcp.patch
 Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
 Patch107:       0006-totp-motd.patch
+Patch108:       0007-Remove-DynamicUser-setting-as-these-conflict-with-re.patch
 # For anything based on SLES 15 codebase (including Leap, SLE Micro)
 Patch103:       0004-leap-gnu18-removal.patch
 Patch104:       selinux_libdir.patch
@@ -227,6 +228,7 @@ BuildRequires:  python3-pytest-timeout
 %patch -P 103 -p1
 %patch -P 104 -p1
 %patch -P 105 -p1
+%patch -P 108 -p1
 %endif
 
 %patch -P 201 -p1
@@ -619,6 +621,14 @@ authentication via sssd/FreeIPA.
 %endif
 
 %pre ws
+# HACK: old RPM and even Fedora's current RPM don't properly support sysusers
+# https://github.com/rpm-software-management/rpm/issues/3073
+getent group cockpit-wsinstance-socket >/dev/null || groupadd -r cockpit-wsinstance-socket
+getent group cockpit-session-socket >/dev/null || groupadd -r cockpit-session-socket
+getent passwd cockpit-wsinstance-socket >/dev/null || useradd -r -g cockpit-wsinstance-socket -d /nonexisting -s /sbin/nologin -c "User for cockpit-ws instances" cockpit-wsinstance-socket
+getent passwd cockpit-session-socket >/dev/null || useradd -r -g cockpit-session-socket -d /nonexisting -s /sbin/nologin -c "User for cockpit-session instances" cockpit-session-socket
+getent passwd cockpit-systemd-service >/dev/null || useradd -r -g cockpit-wsinstance-socket -d /nonexisting -s /sbin/nologin -c "User for cockpit.service" cockpit-systemd-service
+
 if %{_sbindir}/selinuxenabled 2>/dev/null; then
     %selinux_relabel_pre -s %{selinuxtype}
 fi
