@@ -56,6 +56,7 @@ Source0:        cockpit-%{version}.tar.gz
 Source1:        cockpit.pam
 Source2:        cockpit-rpmlintrc
 Source3:        cockpit-suse-theme.tar
+Source4:        cockpit-no-pamoath.pam
 Source10:       update_version.sh
 Source99:       README.packaging
 Source98:       package-lock.json
@@ -235,6 +236,8 @@ BuildRequires:  python3-pytest-timeout
 
 %if 0%{?suse_version} > 1500
 cp %SOURCE1 tools/cockpit.pam
+%else
+cp %SOURCE4 tools/cockpit.pam
 %endif
 #
 local-npm-registry %{_sourcedir} install --include=dev --ignore-scripts
