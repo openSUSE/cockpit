@@ -113,13 +113,13 @@ ExcludeArch: %{ix86}
 %define enable_multihost 0
 %endif
 
+%if 0%{?suse_version} == 0 || 0%{?suse_version} > 1500
 # Ship custom SELinux policy
-%if 0%{?rhel} >= 9 || 0%{?fedora} || 0%{?suse_version}
-%if "%{name}" == "cockpit"
 %define selinuxtype targeted
 %define selinux_configure_arg --enable-selinux-policy=%{selinuxtype}
 %define with_selinux 1
-%endif
+%else
+%define selinux_configure_arg --enable-selinux-policy=no
 %endif
 
 BuildRequires: gcc
