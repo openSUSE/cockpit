@@ -196,7 +196,7 @@ Requires: subscription-manager-cockpit
 
 BuildRequires:  python3-devel
 BuildRequires:  python3-pip
-%if 0%{?rhel} == 0 && 0%{?suse_version} == 0
+%if 0%{?rhel} == 0 && !0%{?suse_version}
 # All of these are only required for running pytest (which we only do on Fedora)
 BuildRequires:  procps-ng
 BuildRequires:  python3-pytest-asyncio
@@ -267,7 +267,7 @@ bzip2 -9 cockpit.pp
 %check
 make -j$(nproc) check
 
-%if 0%{?enable_old_bridge} == 0 && 0%{?rhel} == 0 && 0%{?suse_version} == 0
+%if 0%{?rhel} == 0 && 0%{?suse_version} == 0
 %tox
 %endif
 
