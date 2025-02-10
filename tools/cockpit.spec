@@ -791,8 +791,8 @@ Summary: Cockpit SELinux package
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
 Requires:       policycoreutils-python-utils >= 3.1
-# setroubleshoot is available on SLE Micro starting with 5.5
-%if !0%{?is_smo} || ( 0%{?is_smo} && 0%{?sle_version} >= 150500 )
+# setroubleshoot is available on SLE Micro starting with 5.5)
+%if !0%{?suse_version}  || ( 0%{?is_smo} && 0%{?sle_version} >= 150500 ) || 0%{?suse_version} >= 1600
 Requires:       setroubleshoot-server >= 3.3.3
 %endif
 BuildArch: noarch
@@ -814,6 +814,7 @@ Requires: udisks2 >= 2.9
 Requires: %{__python3}
 %if 0%{?suse_version}
 Requires: libudisks2-0_lvm2 >= 2.9
+Requires: libudisks2-0_btrfs >= 2.9
 Recommends: multipath-tools
 Requires: python3-dbus-python
 %else
