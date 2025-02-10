@@ -216,16 +216,16 @@ BuildRequires:  python3-pytest-timeout
 
 # SLE Micro specific patches
 %if 0%{?is_smo}
-%patch101 -p1
+%patch -P 101 -p1
 # Patches for versions lower then SLE Micro 5.5
 %if 0%{?sle_version} < 150500
-%patch102 -p1
+%patch -P 102 -p1
 %endif
 %endif
 # For anything based on SLES 15 codebase (including Leap, SLEM)
 %if 0%{?suse_version} == 1500
 %patch -P 103 -p1
-%patch -P 104 -p0
+%patch -P 104 -p1
 %patch -P 105 -p1
 %endif
 
