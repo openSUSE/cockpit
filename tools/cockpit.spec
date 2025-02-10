@@ -449,6 +449,9 @@ troubleshooting, interactive command-line sessions, and more.
 %{_docdir}/cockpit/COPYING
 %{_docdir}/cockpit/README.md
 %{_datadir}/metainfo/org.cockpit_project.cockpit.appdata.xml
+%dir %{_datadir}/icons/hicolor/128x128/apps
+%dir %{_datadir}/icons/hicolor/128x128
+%dir %{_datadir}/icons/hicolor
 %{_datadir}/icons/hicolor/128x128/apps/cockpit.png
 %doc %{_mandir}/man1/cockpit.1.gz
 
