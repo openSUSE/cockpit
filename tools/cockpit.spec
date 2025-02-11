@@ -530,7 +530,7 @@ Requires: NetworkManager >= 1.6
 Requires: sos
 Requires: sudo
 Recommends: setroubleshoot-server >= 3.3.3
-Recommends: /usr/bin/kdumpctl
+Recommends: kexec-tools
 Suggests: NetworkManager-team
 Suggests: python3-pcp
 Provides: cockpit-kdump = %{version}-%{release}
