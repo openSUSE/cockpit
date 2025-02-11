@@ -512,7 +512,7 @@ Requires: sos
 Requires: sudo
 Recommends: PackageKit
 Recommends: setroubleshoot-server >= 3.3.3
-Recommends: /usr/bin/kdumpctl
+Recommends: kexec-tools
 Suggests: NetworkManager-team
 Suggests: python3-pcp
 Provides: cockpit-kdump = %{version}-%{release}
@@ -733,7 +733,7 @@ done
 Summary: Cockpit user interface for kernel crash dumping
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
-Requires: /usr/bin/kdumpctl
+Requires: kexec-tools
 BuildArch: noarch
 
 %description kdump
