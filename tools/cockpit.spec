@@ -267,6 +267,7 @@ cp %SOURCE4 tools/cockpit.pam
 %endif
 #
 local-npm-registry %{_sourcedir} install --include=dev --ignore-scripts
+echo "{}" > package-lock.json
 
 %build
 find node_modules -name \*.node -print -delete
