@@ -707,13 +707,15 @@ for i in pam.d/cockpit ; do
      test -f %{_sysconfdir}/${i}.rpmsave && mv -v %{_sysconfdir}/${i}.rpmsave %{_sysconfdir}/${i} ||:
 done
 %endif
-
 %if 0%{?with_selinux}
 %package selinux-policies
 Summary: selinux policies required by cockpit
+Requires(post): selinux-policy-%{selinuxtype} >= %{selinux_policyver}
+Requires(post): selinux-tools
+Requires(post): policycoreutils
 
 %description selinux-policies
-package that contains selinux rules/polcies needed by cockpit when selinux is enabled
+package that contains selinux rules/policies needed by cockpit when selinux is enabled
 
 %files selinux-policies
 %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
@@ -727,14 +729,14 @@ if %{_sbindir}/selinuxenabled 2>/dev/null; then
 fi
 
 %post selinux-policies
+%selinux_modules_install -s %{selinuxtype} %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
 if [ -x %{_sbindir}/selinuxenabled ]; then
-    %selinux_modules_install -s %{selinuxtype} %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
     %selinux_relabel_post -s %{selinuxtype}
 fi
 
 %postun selinux-policies
+%selinux_modules_uninstall -s %{selinuxtype} %{name}
 if [ -x %{_sbindir}/selinuxenabled ]; then
-    %selinux_modules_uninstall -s %{selinuxtype} %{name}
     %selinux_relabel_post -s %{selinuxtype}
 fi
 %endif
