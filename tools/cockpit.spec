@@ -508,6 +508,7 @@ Requires: grep
 Requires: jeos-firstboot
 Requires: /usr/bin/pwscore
 Requires: /usr/bin/date
+Requires: (sudo or polkit)
 Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
 Provides: cockpit-tuned = %{version}-%{release}
