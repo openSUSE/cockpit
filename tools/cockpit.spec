@@ -87,7 +87,6 @@ Patch105:       fix-libexecdir.patch
 Patch106:       packagekit-single-install.patch
 Patch109:       0008-pybridge-endian-flag.patch
 Patch110:       add_preexec_cockpit.patch
-
 Patch201:       remove_rh_links.patch
 
 %define build_all 1
@@ -517,6 +516,7 @@ Requires: grep
 Requires: jeos-firstboot
 Requires: /usr/bin/pwscore
 Requires: /usr/bin/date
+Requires: (sudo or polkit)
 Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
 Provides: cockpit-tuned = %{version}-%{release}
@@ -760,7 +760,6 @@ SELinux policy module for the cockpit-ws package.
 %selinux_modules_uninstall -s %{selinuxtype} %{name}
 %selinux_relabel_post -s %{selinuxtype}
 %endif
-
 
 # -------------------------------------------------------------------------------
 # Sub-packages that are part of cockpit-system in RHEL/CentOS, but separate in Fedora
