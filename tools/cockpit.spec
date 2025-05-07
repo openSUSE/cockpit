@@ -77,6 +77,7 @@ Patch103:       0004-leap-gnu18-removal.patch
 Patch104:       selinux_libdir.patch
 Patch105:       fix-libexecdir.patch
 Patch106:       packagekit-single-install.patch
+Patch109:       0008-pybridge-endian-flag.patch
 
 Patch201:       remove_rh_links.patch
 
@@ -215,6 +216,7 @@ BuildRequires:  python3-pytest-timeout
 %patch -P 5 -p1
 %patch -P 106 -p1
 %patch -P 108 -p1
+%patch -P 109 -p1
 
 # SLE Micro specific patches
 %if 0%{?is_smo}
@@ -707,7 +709,6 @@ for i in pam.d/cockpit ; do
      test -f %{_sysconfdir}/${i}.rpmsave && mv -v %{_sysconfdir}/${i}.rpmsave %{_sysconfdir}/${i} ||:
 done
 %endif
-
 %if 0%{?with_selinux}
 %package selinux-policies
 Summary: selinux policies required by cockpit
@@ -738,6 +739,7 @@ if [ -x %{_sbindir}/selinuxenabled ]; then
     %selinux_relabel_post -s %{selinuxtype}
 fi
 %endif
+
 
 # -------------------------------------------------------------------------------
 # Sub-packages that are part of cockpit-system in RHEL/CentOS, but separate in Fedora
