@@ -85,7 +85,9 @@ Patch103:       0004-leap-gnu18-removal.patch
 Patch104:       selinux_libdir.patch
 Patch105:       fix-libexecdir.patch
 Patch106:       packagekit-single-install.patch
+Patch109:       0008-pybridge-endian-flag.patch
 Patch110:       add_preexec_cockpit.patch
+
 Patch201:       remove_rh_links.patch
 
 %define build_all 1
@@ -758,6 +760,7 @@ SELinux policy module for the cockpit-ws package.
 %selinux_modules_uninstall -s %{selinuxtype} %{name}
 %selinux_relabel_post -s %{selinuxtype}
 %endif
+
 
 # -------------------------------------------------------------------------------
 # Sub-packages that are part of cockpit-system in RHEL/CentOS, but separate in Fedora
