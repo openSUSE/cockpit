@@ -64,6 +64,7 @@ Source0:        cockpit-%{version}.tar.gz
 Source2:        cockpit-rpmlintrc
 Source3:        cockpit-suse-theme.tar
 Source4:        cockpit-no-pamoath.pam
+Source5:        check_cockpit_users
 Source10:       update_version.sh
 Source99:       README.packaging
 Source98:       package-lock.json
@@ -84,7 +85,7 @@ Patch103:       0004-leap-gnu18-removal.patch
 Patch104:       selinux_libdir.patch
 Patch105:       fix-libexecdir.patch
 Patch106:       packagekit-single-install.patch
-
+Patch110:       add_preexec_cockpit.patch
 Patch201:       remove_rh_links.patch
 
 %define build_all 1
@@ -221,7 +222,7 @@ BuildRequires:  python3-pytest-timeout
 %patch -P 5 -p1
 
 %patch -P 106 -p1
-%patch -P 108 -p1
+%patch -P 109 -p1
 
 # SLE Micro specific patches
 %if 0%{?is_smo}
@@ -240,6 +241,10 @@ BuildRequires:  python3-pytest-timeout
 %patch -P 108 -p1
 %else
 %patch -P 107 -p1
+%endif
+
+%if 0%{?suse_version} >= 1600
+%patch -P 110 -p1
 %endif
 
 %patch -P 201 -p1
@@ -438,6 +443,12 @@ rm -f %{buildroot}%{_datadir}/pixmaps/cockpit-sosreport.png
 
 mkdir -p %{buildroot}%{_datadir}/cockpit/devel
 cp -a pkg/lib %{buildroot}%{_datadir}/cockpit/devel
+
+# cockpit.socket preexec to ensure users are created as dynamic users
+
+%if 0%{?suse_version} >= 1600
+install -D -m 755 %SOURCE5 %{buildroot}%{_libexecdir}/
+%endif 
 
 # -------------------------------------------------------------------------------
 # Sub-packages
