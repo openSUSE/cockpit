@@ -738,6 +738,7 @@ Conflicts: %{name}-ws < 337-1.2025
 Requires(post): selinux-policy-%{selinuxtype} >= %{_selinux_policy_version}
 Requires(post): libselinux-utils
 Requires(post): policycoreutils
+Obsoletes: %{name}-selinux-policies < 338
 
 %description ws-selinux
 SELinux policy module for the cockpit-ws package.
@@ -749,10 +750,8 @@ SELinux policy module for the cockpit-ws package.
 %{_mandir}/man8/%{name}_ws_selinux.8cockpit.*
 %ghost %{_sharedstatedir}/selinux/%{selinuxtype}/active/modules/200/%{name}
 
-%pre ws-selinux
+%posttrans ws-selinux
 %selinux_relabel_pre -s %{selinuxtype}
-
-%post ws-selinux
 %selinux_modules_install -s %{selinuxtype} %{_datadir}/selinux/packages/%{selinuxtype}/%{name}.pp.bz2
 %selinux_relabel_post -s %{selinuxtype}
 
