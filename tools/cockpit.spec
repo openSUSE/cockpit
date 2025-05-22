@@ -368,7 +368,7 @@ echo '%dir %{_datadir}/cockpit/selinux' > selinux.list
 find %{buildroot}%{_datadir}/cockpit/selinux -type f >> selinux.list
 
 echo '%dir %{_datadir}/cockpit/static' > static.list
-echo '%dir %{_datadir}/cockpit/static/fonts' >> static.list
+find %{buildroot}%{_datadir}/cockpit/static/* -type d | while read line; do echo "%dir $line"; done >> static.list
 find %{buildroot}%{_datadir}/cockpit/static -type f >> static.list
 
 # when not building basic packages, remove their files
