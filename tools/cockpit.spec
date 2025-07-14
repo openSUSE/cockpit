@@ -684,6 +684,11 @@ if [ "$1" = 1 ]; then
     printf "# List of users which are not allowed to login to Cockpit\n" > /etc/cockpit/disallowed-users
     printf "root\n" >> /etc/cockpit/disallowed-users
     chmod 644 /etc/cockpit/disallowed-users
+
+    # Allow cockpit through the firewall
+    %if 0%{?suse_version} >= 1600
+    test -f %{_bindir}/firewall-cmd && firewall-cmd --quiet --permanent --add-service=cockpit && firewall-cmd --reload --quiet || true
+    %endif
 fi
 
 if [ "$1" = 2 ]; then
@@ -705,8 +710,6 @@ fi
 %endif
 %tmpfiles_create cockpit-ws.conf
 %systemd_post cockpit.socket cockpit.service
-# firewalld only partially picks up changes to its services files without this
-test -f %{_bindir}/firewall-cmd && firewall-cmd --reload --quiet || true
 
 # check for deprecated PAM config
 if test -f %{_sysconfdir}/pam.d/cockpit &&  grep -q pam_cockpit_cert %{_sysconfdir}/pam.d/cockpit; then
