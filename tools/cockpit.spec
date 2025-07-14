@@ -892,6 +892,7 @@ Summary: Cockpit user interface for packages
 BuildArch: noarch
 Requires: cockpit-bridge >= %{required_base}
 Requires: PackageKit
+Requires: libzypp-plugin-appdata
 Recommends: python3-tracer
 # HACK: https://bugzilla.redhat.com/show_bug.cgi?id=1800468
 Requires: polkit
