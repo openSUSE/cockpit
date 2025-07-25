@@ -90,6 +90,7 @@ Patch110:       add_preexec_cockpit.patch
 Patch111:       0001-cockpit-overview-support-SUSE_SUPPORT_PRODUCT-keys.patch
 Patch112:       0002-cockpit-kdump-support-SLE-micro-6.2.patch
 Patch113:       0003-branding-use-SUSE_SUPPORT_PRODUCT-and-SUSE_SUPPORT_P.patch
+Patch114:       0009-packagekit-reboot-notification.patch
 Patch201:       remove_rh_links.patch
 
 %define build_all 1
@@ -233,6 +234,7 @@ BuildRequires:  python3-pytest-timeout
 
 %patch -P 106 -p1
 %patch -P 109 -p1
+%patch -P 114 -p1
 
 # SLE Micro specific patches
 %if 0%{?is_smo}
