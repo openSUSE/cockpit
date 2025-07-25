@@ -785,7 +785,7 @@ Summary: Cockpit user interface for kernel crash dumping
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
 %if 0%{?suse_version}
-Requires: kexec-tools
+Requires: /usr/sbin/kdumptool
 %else
 Requires: /usr/bin/kdumpctl
 %endif
