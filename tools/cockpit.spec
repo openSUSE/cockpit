@@ -794,7 +794,7 @@ SELinux policy module for the cockpit-ws package.
 Summary: Cockpit user interface for kernel crash dumping
 Requires: cockpit-bridge >= %{required_base}
 Requires: cockpit-shell >= %{required_base}
-Requires: kexec-tools
+Requires: /usr/sbin/kdumptool
 BuildArch: noarch
 
 %description kdump
