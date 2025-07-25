@@ -87,6 +87,9 @@ Patch105:       fix-libexecdir.patch
 Patch106:       packagekit-single-install.patch
 Patch109:       0008-pybridge-endian-flag.patch
 Patch110:       add_preexec_cockpit.patch
+Patch111:       0001-cockpit-overview-support-SUSE_SUPPORT_PRODUCT-keys.patch
+Patch112:       0002-cockpit-kdump-support-SLE-micro-6.2.patch
+Patch113:       0003-branding-use-SUSE_SUPPORT_PRODUCT-and-SUSE_SUPPORT_P.patch
 Patch201:       remove_rh_links.patch
 
 %define build_all 1
@@ -218,7 +221,13 @@ BuildRequires:  python3-pytest-timeout
 %setup -q -n cockpit-%{version} -a 3
 %patch -P 1 -p1
 %patch -P 2 -p1
+
+%if 0%{?is_opensuse} || 0%{?suse_version} < 1600
 %patch -P 3 -p1
+%else
+%patch -P  113 -p1
+%endif
+
 %patch -P 4 -p1
 %patch -P 5 -p1
 
@@ -246,6 +255,10 @@ BuildRequires:  python3-pytest-timeout
 
 %if 0%{?suse_version} >= 1600
 %patch -P 110 -p1
+%if !0%{?is_opensuse}
+%patch -P  111 -p1
+%patch -P  112 -p1
+%endif
 %endif
 
 %patch -P 201 -p1
