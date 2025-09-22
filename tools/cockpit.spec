@@ -533,6 +533,7 @@ Requires: jeos-firstboot
 Requires: /usr/bin/pwscore
 Requires: /usr/bin/date
 Requires: (sudo or polkit)
+Requires: (python3-pcp if pcp)
 Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
 Provides: cockpit-tuned = %{version}-%{release}
