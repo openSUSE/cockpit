@@ -266,9 +266,10 @@ BuildRequires:  python3-pytest-timeout
 
 %patch -P 201 -p1
 
-%if 0%{?suse_version} < 1500
+# If we're not using cockpit.suse.pam
+# Then we should always use source4's pam
 cp %SOURCE4 tools/cockpit.pam
-%endif
+
 #
 local-npm-registry %{_sourcedir} install --include=dev --ignore-scripts
 touch package-lock.json
