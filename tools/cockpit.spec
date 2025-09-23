@@ -233,14 +233,13 @@ BuildRequires:  python3-pytest-timeout
 %patch -P 4 -p1
 %patch -P 5 -p1
 
+%patch -P 101 -p1
 %patch -P 106 -p1
 %patch -P 109 -p1
 %patch -P 114 -p1
 
 # SLE Micro specific patches
 %if 0%{?is_smo}
-%patch -P 101 -p1
-%patch -P 107 -p1
 # Patches for versions lower then SLE Micro 5.5
 %if 0%{?sle_version} < 150500
 %patch -P 102 -p1
