@@ -220,7 +220,6 @@ Recommends: (cockpit-packagekit if (dnf or zypper))
 Recommends: (dnf5-daemonserver if dnf5)
 %endif
 Recommends: (cockpit-firewalld if firewalld)
-Suggests: python3-pcp
 
 %if 0%{?rhel} == 0
 Recommends: (cockpit-networkmanager if NetworkManager)
@@ -555,6 +554,7 @@ Requires: jeos-firstboot
 Requires: /usr/bin/pwscore
 Requires: /usr/bin/date
 Requires: (sudo or polkit)
+Requires: (python3-pcp if pcp)
 Provides: cockpit-shell = %{version}-%{release}
 Provides: cockpit-systemd = %{version}-%{release}
 Provides: cockpit-tuned = %{version}-%{release}
@@ -566,7 +566,6 @@ Requires: sudo
 Recommends: setroubleshoot-server >= 3.3.3
 Recommends: kexec-tools
 Suggests: NetworkManager-team
-Suggests: python3-pcp
 Provides: cockpit-kdump = %{version}-%{release}
 Provides: cockpit-networkmanager = %{version}-%{release}
 Provides: cockpit-selinux = %{version}-%{release}
