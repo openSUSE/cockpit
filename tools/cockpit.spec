@@ -900,7 +900,7 @@ Requires: python3-dbus-python
 Recommends: udisks2-lvm2 >= 2.9
 Recommends: udisks2-iscsi >= 2.9
 %if ! 0%{?rhel}
-Recommends: (udisks2-btrfs >= 2.9 if btrfs-progs)
+Recommends: (udisks2-btrfs >= 2.9 if (btrfs-progs or btrfsprogs))
 %endif
 Recommends: device-mapper-multipath
 Recommends: clevis-luks
