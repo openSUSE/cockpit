@@ -73,6 +73,7 @@ Patch2:         suse_docs.patch
 Patch3:         suse-microos-branding.patch
 Patch4:         css-overrides.patch
 Patch5:         storage-btrfs.patch
+Patch6:         esbuild-ppc64.patch
 # SLE Micro specific patches
 Patch101:       hide-pcp.patch
 Patch102:       0002-selinux-temporary-remove-setroubleshoot-section.patch
@@ -246,6 +247,7 @@ BuildRequires:  python3-pytest-timeout
 
 %patch -P 4 -p1
 %patch -P 5 -p1
+%patch -P 6 -p1
 
 %patch -P 101 -p1
 %patch -P 106 -p1
