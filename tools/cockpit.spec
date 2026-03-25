@@ -89,6 +89,7 @@ Patch111:       0001-cockpit-overview-support-SUSE_SUPPORT_PRODUCT-keys.patch
 Patch112:       0002-cockpit-kdump-support-SLE-micro-6.2.patch
 Patch113:       0003-branding-use-SUSE_SUPPORT_PRODUCT-and-SUSE_SUPPORT_P.patch
 Patch114:       0009-packagekit-reboot-notification.patch
+Patch115:       0010-Override-kdump-message.patch
 Patch201:       remove_rh_links.patch
 
 %define build_all 1
@@ -271,6 +272,7 @@ BuildRequires:  python3-pytest-timeout
 
 %if 0%{?suse_version} >= 1600
 %patch -P 110 -p1
+%patch -P 115 -p1
 %if !0%{?is_opensuse}
 %patch -P  111 -p1
 %patch -P  112 -p1
