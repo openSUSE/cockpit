@@ -91,6 +91,7 @@ Patch112:       0002-cockpit-kdump-support-SLE-micro-6.2.patch
 Patch113:       0003-branding-use-SUSE_SUPPORT_PRODUCT-and-SUSE_SUPPORT_P.patch
 Patch114:       0009-packagekit-reboot-notification.patch
 Patch115:       0010-Override-kdump-message.patch
+Patch116:       0011-Warn-root-login-disabled.patch
 Patch201:       remove_rh_links.patch
 
 %define build_all 1
@@ -281,6 +282,7 @@ BuildRequires:  python3-pytest-timeout
 %endif
 %endif
 
+%patch -P 116 -p1
 %patch -P 201 -p1
 
 # If we're not using cockpit.suse.pam
